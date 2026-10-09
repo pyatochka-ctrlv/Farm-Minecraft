@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Агент будує загін</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#262626;color:#fff;
+  display:flex;flex-direction:column;font-size:22px;user-select:none;-webkit-user-select:none;overflow:hidden}
+button{font-family:inherit}
+.btn{font-size:22px;font-weight:700;padding:10px 20px;border:none;border-radius:12px;background:#4b4f56;color:#fff;cursor:pointer;
+  box-shadow:0 4px 0 rgba(0,0,0,.4);white-space:nowrap}
+.btn:hover{filter:brightness(1.15)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.btn:disabled{opacity:.35;cursor:default;filter:none;transform:none}
+.btn.green{background:#2e8b3e}.btn.blue{background:#1f6fd1}.btn.orange{background:#cf6417}
+.btn.purple{background:#7b4bc4}.btn.light{background:#ececec;color:#222}.btn.red{background:#b8322b}
+.hidden{display:none!important}
+
+/* ---------- верхня панель ---------- */
+#topbar{height:84px;flex:none;display:flex;align-items:center;gap:14px;padding:0 20px;background:#1b1b1b;border-bottom:3px solid #0b0b0b}
+.brand{font-size:24px;font-weight:800;color:#9be38a;margin-right:8px;white-space:nowrap}
+#lvlTitle{font-size:28px;font-weight:800;min-width:500px;text-align:center;line-height:1.1}
+#lvlTitle small{display:block;font-size:22px;color:#bbb;font-weight:600}
+.spacer{flex:1}
+
+#main{flex:1;display:flex;min-height:0}
+
+/* ---------- палітра ---------- */
+#palette{width:384px;flex:none;display:flex;flex-direction:column;background:#303236;border-right:3px solid #161616;position:relative}
+#cats{flex:none;padding:10px;display:flex;flex-direction:column;gap:6px;background:#26282c;border-bottom:2px solid #1a1a1a}
+.cat{display:flex;align-items:center;gap:14px;padding:9px 14px;border-radius:10px;font-size:24px;font-weight:700;cursor:pointer;color:#eee;border-left:8px solid var(--c)}
+.cat .sq{width:30px;height:30px;border-radius:7px;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:18px}
+.cat.sel{background:var(--c);color:#fff}
+.cat.sel .sq{background:rgba(255,255,255,.25)}
+.cat:hover:not(.sel){background:#36393e}
+#fly{flex:1;position:relative;overflow-y:auto;overflow-x:hidden;background:#3a3c41}
+#flyInner{position:relative;min-height:100%}
+#flyHelp{position:absolute;left:18px;right:18px;color:#c8c8c8;font-size:22px;line-height:1.3}
+#trashHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+  background:rgba(120,25,25,.85);font-size:26px;font-weight:800;z-index:40;text-align:center;padding:20px}
+#trashHint .big{font-size:64px}
+#palette.trash #trashHint{display:flex}
+
+/* ---------- робоча область ---------- */
+#ws{width:768px;flex:none;position:relative;background:#333;border-right:3px solid #161616}
+#wsScroll{position:absolute;inset:0;overflow:auto}
+#wsInner{position:relative;min-width:100%;min-height:100%;
+  background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:32px 32px}
+#clearBtn{position:absolute;right:18px;top:14px;z-index:60}
+#clearBtn.armed{background:#b8322b}
+#wsHelp{position:absolute;left:0;right:0;bottom:0;padding:10px 18px;color:#bdbdbd;font-size:22px;pointer-events:none;z-index:55;
+  background:linear-gradient(transparent,rgba(30,30,30,.92) 35%)}
+#marker{position:absolute;height:8px;width:280px;border-radius:4px;background:#fff;box-shadow:0 0 14px #fff;display:none;z-index:50}
+
+/* ---------- блоки ---------- */
+.blk{position:absolute;cursor:grab}
+.blk .bsvg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.blk path{stroke-width:1.5;stroke-linejoin:round}
+.bc{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:8px 9px;padding:15px 16px 11px 16px;min-height:56px;
+  max-width:620px;width:max-content;font-size:20px;font-weight:600;color:#fff}
+.evh{position:absolute;left:0;padding:12px 16px 12px 16px;min-height:54px}
+.pal .bc{font-size:18px;max-width:340px;gap:7px 8px}
+.bt{white-space:nowrap;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;font-weight:700}
+.field.ro{cursor:inherit}
+.fnum,.fstr{background:#fff;color:#262626;border-radius:999px;min-width:46px;justify-content:center;padding:3px 14px}
+.fdrop{background:rgba(0,0,0,.25);border:1.5px solid rgba(0,0,0,.3);border-radius:999px;padding:3px 10px 3px 14px;color:#fff}
+.caret{font-size:15px;opacity:.9}
+.fitem{background:#fff;color:#333;border-radius:8px;padding:2px 10px 2px 6px}
+.fitem svg{width:26px;height:26px;display:block}
+.ftoggle{background:#7d4fc9;border-radius:999px;padding:3px;gap:4px;border:1.5px solid #5a34a0}
+.ftoggle .tk{width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.ftoggle .tl{border-radius:999px;padding:2px 12px;font-size:18px;font-weight:800;color:#fff}
+.ftoggle.on .tl{background:#3cb043}
+.ftoggle.off .tl{background:#9a9a9a}
+.blk.ed .field:hover{box-shadow:0 0 0 3px rgba(255,255,255,.6)}
+.blk.run .bsvg path{stroke:#ffe31a;stroke-width:6}
+.blk.run .bsvg{filter:drop-shadow(0 0 10px #ffe31a)}
+.blk.hint .bsvg path{stroke:#fff;stroke-width:5;stroke-dasharray:12 8;animation:dash 1s linear infinite}
+.blk.hint::before{content:"💡";position:absolute;left:-46px;top:6px;font-size:32px;animation:bob .7s ease-in-out infinite alternate}
+.blk.flash .bsvg path{stroke:#7CFC00;stroke-width:5}
+.blk.flash .bsvg{filter:drop-shadow(0 0 8px #7CFC00)}
+@keyframes dash{to{stroke-dashoffset:-40}}
+@keyframes bob{from{transform:translateY(-4px)}to{transform:translateY(4px)}}
+.blk.dsrc{opacity:.28}
+.ghost{position:absolute;z-index:1000;pointer-events:none;opacity:.93;filter:drop-shadow(0 10px 14px rgba(0,0,0,.55))}
+.btools{position:absolute;left:100%;top:4px;display:none;padding-left:10px;gap:6px;z-index:20}
+.blk:hover .btools{display:flex}
+.ghost .btools{display:none!important}
+.btools button{width:42px;height:42px;border-radius:10px;border:none;background:#5a5a5a;color:#fff;font-size:22px;cursor:pointer;font-weight:800;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.btools button:hover{filter:brightness(1.25)}
+.btools button.del{background:#b8322b}
+
+/* ---------- спливаючі редактори ---------- */
+.popup{position:absolute;z-index:900;background:#fafafa;color:#222;border-radius:16px;padding:14px;box-shadow:0 12px 30px rgba(0,0,0,.6);border:3px solid #D83B01}
+.numrow{display:flex;align-items:center;gap:14px;justify-content:center}
+.popup .big{width:76px;height:76px;border-radius:16px;border:none;font-size:46px;font-weight:800;cursor:pointer;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.popup .big.minus{background:#c0392b}.popup .big.plus{background:#2e8b3e}
+.popup .big:active{transform:translateY(3px)}
+.nval{font-size:56px;font-weight:800;min-width:80px;text-align:center}
+.quick{display:grid;grid-template-columns:repeat(5,52px);gap:8px;margin-top:12px;justify-content:center}
+.quick button{height:48px;border-radius:10px;border:2px solid #ccc;background:#fff;font-size:24px;font-weight:700;cursor:pointer}
+.quick button.cur{background:#ffd54a;border-color:#c79a00}
+.okb{display:block;width:100%;margin-top:12px;font-size:22px;font-weight:700;padding:8px;border-radius:10px;border:none;background:#444;color:#fff;cursor:pointer}
+.dropopt{display:flex;align-items:center;gap:14px;width:290px;padding:12px 16px;margin:4px 0;font-size:26px;font-weight:700;border-radius:12px;border:none;
+  background:#eee;cursor:pointer;text-align:left}
+.dropopt .ar{font-size:30px;width:40px;text-align:center}
+.dropopt.cur{background:#D83B01;color:#fff}
+.dropopt:hover:not(.cur){background:#ffe1d1}
+
+/* ---------- світ ---------- */
+#worldcol{flex:1;display:flex;flex-direction:column;padding:10px;gap:8px;min-width:0;background:#202326}
+#qbox{height:150px;flex:none;background:#1d3a5c;border-radius:14px;padding:8px 18px;border-left:10px solid #ffc83d;display:flex;flex-direction:column;justify-content:center}
+#qlabel{font-size:22px;color:#ffd970;font-weight:800}
+#qtext{font-size:28px;font-weight:800;line-height:1.2}
+#qsub{font-size:22px;color:#cfe3ff;margin-top:4px;line-height:1.2}
+#qsub.ans{color:#a6ff9e;font-weight:700}
+#worldwrap{flex:none;display:flex;gap:10px;height:600px}
+#world{position:relative;width:600px;height:600px;flex:none;border-radius:4px;box-shadow:0 0 0 4px #14301a}
+#grass{position:absolute;left:0;top:0;width:600px;height:600px;image-rendering:pixelated}
+#gridL{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.14) 1px,transparent 1px);background-size:40px 40px}
+.layer{position:absolute;inset:0;pointer-events:none}
+.cellE{position:absolute;width:40px;height:40px}
+.ol{background:rgba(255,255,255,.3);outline:3px dashed rgba(255,255,255,.95);outline-offset:-5px}
+.fence svg{display:block;width:40px;height:40px}
+.fence.pop{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.18)}100%{transform:scale(1)}}
+.mark{border-radius:5px;z-index:2}
+.mark.red{background:rgba(255,40,40,.5);box-shadow:inset 0 0 0 4px #ff2d2d,0 0 18px #ff2d2d;animation:pulse .7s ease-in-out infinite alternate}
+.mark.yel{background:rgba(255,220,0,.45);box-shadow:inset 0 0 0 4px #ffd400,0 0 16px #ffd400;animation:pulse .7s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.5}to{opacity:1}}
+.spr{position:absolute;width:40px;height:40px;transition:left .35s ease,top .35s ease,transform .3s;z-index:5}
+.spr .body{width:100%;height:100%;padding:1px}
+.spr svg{display:block;width:100%;height:100%;filter:drop-shadow(0 3px 0 rgba(0,0,0,.3))}
+#player.under{transform:translate(-24%,16%) scale(.7)}
+#agent{z-index:7}
+#agent.over{transform:translate(14%,-8%) scale(.92)}
+#panda{z-index:8}
+#panda.drop .body{animation:drop .5s ease-out}
+@keyframes drop{0%{transform:translateY(-50px) scale(.5);opacity:0}60%{transform:translateY(4px) scale(1.1);opacity:1}100%{transform:none}}
+#agent .body.tp{animation:tp .5s ease-out}
+@keyframes tp{0%{transform:scale(0) rotate(-120deg);opacity:0;filter:brightness(3)}100%{transform:none;opacity:1}}
+#bubble{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);background:#fff;border-radius:7px;padding:2px 3px;box-shadow:0 2px 0 rgba(0,0,0,.45);display:none;white-space:nowrap}
+#bubble::after{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:#fff}
+#bubble svg{width:24px;height:24px;display:block;filter:none}
+#bubble.on{display:block}
+#bubble.err{background:#e53935;color:#fff;font-size:20px;font-weight:800;padding:0 6px}
+#bubble.err::after{border-top-color:#e53935}
+.heart{position:absolute;font-size:30px;color:#ff4f7b;text-shadow:0 2px 0 #8b1538;animation:heart 1.7s ease-out forwards;z-index:20}
+@keyframes heart{0%{transform:translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:translateY(-80px) scale(1.25);opacity:0}}
+#msg{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;border-radius:14px;padding:14px 56px 14px 18px;font-size:24px;font-weight:700;line-height:1.3;
+  box-shadow:0 6px 18px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.35)}
+#msg.info{background:rgba(21,96,180,.96)}
+#msg.ok{background:rgba(36,128,52,.96)}
+#msg.warn{background:rgba(170,100,0,.97)}
+#msg.err{background:rgba(190,35,35,.97)}
+#msg .yel{display:block;color:#ffe45c;margin-top:6px}
+#msgClose{position:absolute;right:10px;top:10px;width:38px;height:38px;border:none;border-radius:8px;background:rgba(0,0,0,.25);color:#fff;font-size:22px;cursor:pointer}
+#side{flex:1;display:flex;flex-direction:column;gap:14px;background:#2b2f33;border-radius:12px;padding:12px 8px;align-items:center;text-align:center}
+#side .lab{color:#c9c9c9;font-size:22px;line-height:1.15;font-weight:700}
+.slotBox{margin-top:6px;width:72px;height:72px;background:#8d8d8d;border:4px solid;border-color:#5b5b5b #f0f0f0 #f0f0f0 #5b5b5b;display:flex;align-items:center;justify-content:center}
+.slotBox svg{width:50px;height:50px;display:block}
+.pill{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:999px;font-weight:800;font-size:22px}
+.pill.on{background:#3cb043}.pill.off{background:#777}
+.robotMini{width:64px;height:64px}
+.row{flex:none;display:flex;align-items:center;gap:12px;height:56px}
+#chatBox{display:flex;align-items:center;gap:8px;background:#0e0e0e;border-radius:10px;padding:6px 10px 6px 14px;border:2px solid #666;height:52px}
+#chatBox label{color:#aaa;font-weight:700}
+#chatIn{font-size:26px;width:150px;background:transparent;border:none;color:#fff;outline:none;font-family:inherit;font-weight:700}
+#chatIn::placeholder{color:#666;font-size:22px}
+#fcount{margin-left:auto;font-size:24px;font-weight:800;background:#3a2a17;border:2px solid #8b5a2b;border-radius:10px;padding:8px 14px;white-space:nowrap}
+#speedRow{gap:14px;color:#ddd;font-weight:700}
+#speed{width:240px;height:30px;accent-color:#ffc83d;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="topbar">
+    <div class="brand">🌾 Магічна ферма</div>
+    <button id="prevBtn" class="btn">◀ Назад</button>
+    <div id="lvlTitle"></div>
+    <button id="nextBtn" class="btn">Далі ▶</button>
+    <div class="spacer"></div>
+    <button id="hintBtn" class="btn purple">💡 Підказка</button>
+    <button id="breakBtn" class="btn orange">🔧 Наступна поломка</button>
+    <button id="answerBtn" class="btn green">✅ Показати відповідь</button>
+  </div>
+
+  <div id="main">
+    <div id="palette">
+      <div id="cats"></div>
+      <div id="fly"><div id="flyInner"></div></div>
+      <div id="trashHint"><div class="big">🗑</div>Відпустіть, щоб видалити блок</div>
+    </div>
+
+    <div id="ws">
+      <div id="wsScroll"><div id="wsInner"></div></div>
+      <button id="clearBtn" class="btn">🗑 Очистити програму</button>
+      <div id="wsHelp">Перетягуйте блоки, щоб змінити порядок. Наведіть мишу на блок: ↑ ↓ ✕</div>
+    </div>
+
+    <div id="worldcol">
+      <div id="qbox">
+        <div id="qlabel">❓ Питання до класу</div>
+        <div id="qtext"></div>
+        <div id="qsub"></div>
+      </div>
+      <div id="worldwrap">
+        <div id="world">
+          <canvas id="grass"></canvas>
+          <div id="gridL"></div>
+          <div id="outlineL" class="layer"></div>
+          <div id="fenceL" class="layer"></div>
+          <div id="markL" class="layer"></div>
+          <div id="player" class="spr"><div class="body"></div></div>
+          <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div></div>
+          <div id="panda" class="spr hidden"><div class="body"></div></div>
+          <div id="fxL" class="layer"></div>
+          <div id="msg" class="hidden"><div id="msgText"></div><button id="msgClose" title="Закрити">✕</button></div>
+        </div>
+        <div id="side">
+          <div class="robotMini" id="robotMini"></div>
+          <div><div class="lab">Слот 1</div><div class="slotBox" id="slotBox"></div></div>
+          <div><div class="lab">Розміщення<br>на ходу</div><div class="pill off" id="placePill">ВИМКН.</div></div>
+        </div>
+      </div>
+      <div class="row">
+        <div id="chatBox"><label for="chatIn">Чат:</label><input id="chatIn" type="text" placeholder="напишіть 1" autocomplete="off"></div>
+        <button id="runBtn" class="btn green">▶ Запуск</button>
+        <button id="stepBtn" class="btn blue">👣 Покроково</button>
+      </div>
+      <div class="row">
+        <button id="resetBtn" class="btn">↺ Скинути світ</button>
+        <button id="pandaBtn" class="btn light">🐼 Випустити панду</button>
+        <div id="fcount">Блоків паркану: 0</div>
+      </div>
+      <div class="row" id="speedRow">
+        <span>Швидкість:</span><span>повільно</span>
+        <input id="speed" type="range" min="0" max="100" value="35">
+        <span>нормально</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+
+/* ================= масштаб під екран ================= */
+let S=1;
+function fit(){
+  S=Math.min(innerWidth/1920, innerHeight/1080);
+  const ox=(innerWidth-1920*S)/2, oy=(innerHeight-1080*S)/2;
+  stage.style.transform=`translate(${ox}px,${oy}px) scale(${S})`;
+}
+addEventListener('resize',fit); fit();
+
+/* ================= константи ================= */
+const N=15, CELL=40;
+const PLAYER={x:7,y:8};
+const HOME={x:8,y:8};               // де стоїть Агент після «Скинути світ»
+const R=8, NO=18, ND=8, NWID=32;    // геометрія блоків: радіус, зсув зубчика, глибина, ширина
+const CAP=18, AW=22, BH=28;         // «шапка» події, ширина лівої стінки С-блока, нижня планка
+const EX=60, EY=44;                 // позиція блоку події в робочій області
+const COL={agent:{f:'#D83B01',s:'#9c2a00'}, ev:{f:'#0078D7',s:'#00508f'}};
+const DIRS={
+  fwd:  {l:'вперед',  dx:0, dy:-1, a:'⬆'},
+  back: {l:'назад',   dx:0, dy:1,  a:'⬇'},
+  left: {l:'ліворуч', dx:-1,dy:0,  a:'⬅'},
+  right:{l:'праворуч',dx:1, dy:0,  a:'➡'}
+};
+const key=(x,y)=>x+','+y;
+const unkey=k=>{const [x,y]=k.split(',').map(Number);return {x,y};};
+const inB=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= піксельні спрайти ================= */
+function pix(rows,pal){
+  const h=rows.length,w=rows[0].length;
+  let s=`<svg viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" xmlns="${NS}">`;
+  rows.forEach((r,y)=>{[...r].forEach((ch,x)=>{ if(ch!=='.') s+=`<rect x="${x}" y="${y}" width="1.05" height="1.05" fill="${pal[ch]}"/>`; });});
+  return s+'</svg>';
+}
+const ROBOT=pix([
+  ".....yy.....",
+  ".....gg.....",
+  "..GGGGGGGG..",
+  "..GddddddG..",
+  "..GdcddcdG..",
+  "..GddddddG..",
+  "..GGGGGGGG..",
+  ".oMMMMMMMMo.",
+  ".oMMrMMbMMo.",
+  "..MMMMMMMM..",
+  "..kk....kk..",
+  "..kk....kk.."
+],{y:'#ffd23f',g:'#8a979e',G:'#cfd8dc',d:'#1b2a38',c:'#3ff0ff',M:'#5f9fb5',o:'#ff8c1a',r:'#ff4d4d',b:'#4dff88',k:'#37424b'});
+const KID=pix([
+  "...hhhhhh...",
+  "..hhhhhhhh..",
+  "..hsssssshh.",
+  "..sesssses..",
+  "..ssssssss..",
+  "...ssmmss...",
+  "..pppppppp..",
+  ".spppppppps.",
+  ".spppppppps.",
+  "...bbbbbb...",
+  "...bb..bb...",
+  "...kk..kk..."
+],{h:'#d9772b',s:'#f1c27d',e:'#222',m:'#c0392b',p:'#8e44ad',b:'#2c3e8f',k:'#333'});
+const PANDA=pix([
+  ".kk......kk.",
+  ".kkwwwwwwkk.",
+  "..wwwwwwww..",
+  "..wkkwwkkw..",
+  "..wkewwekw..",
+  "..wwwwwwww..",
+  "..wwwnnwww..",
+  "...wwwwww...",
+  ".kkwwwwwwkk.",
+  ".kkwwwwwwkk.",
+  "..kkk..kkk..",
+  "..kkk..kkk.."
+],{k:'#1e1e1e',w:'#f4f4f4',e:'#ffffff',n:'#333'});
+const FENCE_ICON='<svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="'+NS+'">'+
+  '<rect x="2" y="2" width="3" height="13" fill="#6b4421"/><rect x="11" y="2" width="3" height="13" fill="#6b4421"/>'+
+  '<rect x="3" y="3" width="1" height="11" fill="#b5793d"/><rect x="12" y="3" width="1" height="11" fill="#b5793d"/>'+
+  '<rect x="0" y="5" width="16" height="2" fill="#a46a32"/><rect x="0" y="10" width="16" height="2" fill="#a46a32"/>'+
+  '<rect x="0" y="5" width="16" height="1" fill="#c98d4f"/><rect x="0" y="10" width="16" height="1" fill="#c98d4f"/></svg>';
+function fenceSVG(n){
+  const rail='#c48a4a', railD='#6e461f';
+  let s='<svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="'+NS+'">';
+  s+='<rect x="5" y="6" width="7" height="7" fill="rgba(0,0,0,.28)"/>';
+  if(n.u) s+=`<rect x="6" y="0" width="4" height="7" fill="${railD}"/><rect x="7" y="0" width="2" height="7" fill="${rail}"/>`;
+  if(n.d) s+=`<rect x="6" y="9" width="4" height="7" fill="${railD}"/><rect x="7" y="9" width="2" height="7" fill="${rail}"/>`;
+  if(n.l) s+=`<rect x="0" y="6" width="7" height="4" fill="${railD}"/><rect x="0" y="7" width="7" height="2" fill="${rail}"/>`;
+  if(n.r) s+=`<rect x="9" y="6" width="7" height="4" fill="${railD}"/><rect x="9" y="7" width="7" height="2" fill="${rail}"/>`;
+  s+='<rect x="4" y="4" width="8" height="8" fill="#4e3216"/><rect x="5" y="5" width="6" height="6" fill="#a8703a"/>'+
+     '<rect x="5" y="5" width="6" height="2" fill="#cf9455"/><rect x="7" y="8" width="2" height="1" fill="#8a5a2c"/>';
+  return s+'</svg>';
+}
+$('player').querySelector('.body').innerHTML=KID;
+$('agent').querySelector('.body').innerHTML=ROBOT;
+$('panda').querySelector('.body').innerHTML=PANDA;
+$('robotMini').innerHTML=ROBOT;
+
+function drawGrass(){
+  const cv=$('grass'); cv.width=N*8; cv.height=N*8;
+  const g=cv.getContext('2d');
+  let seed=12345; const rnd=()=>{seed=(seed*16807)%2147483647; return seed/2147483647;};
+  const cols=['#5fae3f','#5fae3f','#5fae3f','#66b546','#579f38','#6cbd4c','#529a35'];
+  for(let y=0;y<N*8;y++) for(let x=0;x<N*8;x++){ g.fillStyle=cols[Math.floor(rnd()*cols.length)]; g.fillRect(x,y,1,1); }
+  for(let i=0;i<40;i++){ const x=Math.floor(rnd()*N*8), y=Math.floor(rnd()*N*8); g.fillStyle='#4a8f2f'; g.fillRect(x,y,1,2); }
+  for(let i=0;i<16;i++){ const x=Math.floor(rnd()*N*8), y=Math.floor(rnd()*N*8); g.fillStyle=rnd()<.5?'#ffe14d':'#ff8ab3'; g.fillRect(x,y,1,1); }
+}
+drawGrass();
+
+/* ================= модель програми ================= */
+let uid=1;
+const B={
+  tp:()=>({id:uid++,type:'tp'}),
+  slot:(c=1,s=1)=>({id:uid++,type:'slot',count:c,slot:s}),
+  mv:(d='fwd',n=1)=>({id:uid++,type:'mv',dir:d,n}),
+  pl:(on=true)=>({id:uid++,type:'pl',on})
+};
+function lessonProgram(){
+  return [B.tp(),B.slot(1,1),B.mv('fwd',3),B.mv('right',1),B.pl(true),
+          B.mv('left',4),B.mv('back',5),B.mv('right',5),B.mv('fwd',6),B.pl(false)];
+}
+
+let level=0, breakIdx=0, program=[], hintIds=new Set(), flashIds=new Set();
+let answerMode=false, answerNote='', breakHintId=null, runId=null;
+
+const LV=[
+  {name:'Повтори за мною', q:'Як думаєте, загін вийде закритим?',
+   sub:'Спершу передбачте, де пройде Агент. Потім напишіть у чат «1».'},
+  {name:'Більший загін для коней', q:'Коням потрібен загін ширший на 2 клітинки. Які числа змінити?',
+   sub:'Білий пунктир на карті — такий загін нам потрібен.'},
+  {name:'Зламаний загін', q:'Що зламалося? Як полагодити?', sub:''},
+  {name:'Загін за кресленням', q:'Продиктуйте програму: Агент має збудувати загін точно по контуру 5×5.',
+   sub:'Порахуйте клітинки на кожній стороні креслення.'}
+];
+const OUTLINES={1:{x0:2,y0:5,x1:9,y1:10}, 3:{x0:7,y0:3,x1:11,y1:7}};
+const BREAK_NAMES=['А','Б','В'];
+
+/* ================= малювання блоків ================= */
+function stmtPath(w,h){
+  return `M0 ${R} a${R} ${R} 0 0 1 ${R} ${-R} H${NO} l7 ${ND} h18 l7 ${-ND} H${w-R} a${R} ${R} 0 0 1 ${R} ${R} `+
+         `V${h-R} a${R} ${R} 0 0 1 ${-R} ${R} H${NO+NWID} l-7 ${ND} h-18 l-7 ${-ND} H${R} a${R} ${R} 0 0 1 ${-R} ${-R} Z`;
+}
+function evPath(w,hh,ih){
+  const y1=CAP+hh, y2=y1+ih, y3=y2+BH, c=CAP*1.35;
+  return `M0 ${CAP} c25 ${-c} 75 ${-c} 100 0 H${w-R} a${R} ${R} 0 0 1 ${R} ${R} V${y1-R} a${R} ${R} 0 0 1 ${-R} ${R} `+
+         `H${AW+NO+NWID} l-7 ${ND} h-18 l-7 ${-ND} H${AW+R} a${R} ${R} 0 0 0 ${-R} ${R} V${y2-R} a${R} ${R} 0 0 0 ${R} ${R} `+
+         `H${w-R} a${R} ${R} 0 0 1 ${R} ${R} V${y3-R} a${R} ${R} 0 0 1 ${-R} ${R} H${R} a${R} ${R} 0 0 1 ${-R} ${-R} Z`;
+}
+function mkSvg(){
+  const svg=document.createElementNS(NS,'svg'); svg.setAttribute('class','bsvg');
+  svg.appendChild(document.createElementNS(NS,'path')); return svg;
+}
+function blockContent(b,editable){
+  const c=document.createElement('div'); c.className='bc';
+  const t=s=>{const e=document.createElement('span'); e.className='bt'; e.textContent=s; c.appendChild(e);};
+  const field=(cls,html,onclick)=>{
+    const e=document.createElement('span'); e.className='field '+cls; e.innerHTML=html;
+    if(editable&&onclick) e.addEventListener('click',ev=>{ev.stopPropagation(); onclick(e);});
+    else e.classList.add('ro');
+    c.appendChild(e); return e;
+  };
+  switch(b.type){
+    case 'tp': t('агент - телепортуватися до гравця'); break;
+    case 'slot':
+      t('agent, постав блок або предмет');
+      field('fitem',FENCE_ICON+'<span>паркан</span>');
+      t('кількість'); field('fnum',b.count,e=>openNum(b,'count',e));
+      t('у слот');    field('fnum',b.slot,e=>openNum(b,'slot',e));
+      break;
+    case 'mv':
+      t('агент - переміститися');
+      field('fdrop',esc(DIRS[b.dir].l)+' <span class="caret">▾</span>',e=>openDrop(b,e));
+      t('by'); field('fnum',b.n,e=>openNum(b,'n',e));
+      break;
+    case 'pl':
+      t('агент - розмістити на ходу');
+      field('ftoggle '+(b.on?'on':'off'),
+        b.on?'<span class="tl">УВІМКН.</span><span class="tk"></span>':'<span class="tk"></span><span class="tl">ВИМКН.</span>',
+        ()=>{b.on=!b.on; programChanged();});
+      break;
+  }
+  return c;
+}
+function makeStmt(b,editable){
+  const el=document.createElement('div');
+  el.className='blk'+(editable?' ed':''); el.dataset.id=b.id; el.dataset.type=b.type;
+  el.appendChild(mkSvg());
+  el.appendChild(blockContent(b,editable));
+  if(editable) el.appendChild(makeTools(b));
+  return el;
+}
+function shapeStmt(el,col){
+  const c=el.querySelector('.bc'); const w=c.offsetWidth, h=c.offsetHeight;
+  const svg=el.querySelector('.bsvg'); svg.setAttribute('width',w); svg.setAttribute('height',h+ND);
+  const p=svg.firstChild; p.setAttribute('d',stmtPath(w,h)); p.setAttribute('fill',col.f); p.setAttribute('stroke',col.s);
+  el.style.width=w+'px'; el.style.height=h+'px';
+  return {w,h};
+}
+function makeEvent(editable){
+  const el=document.createElement('div'); el.className='blk ev'+(editable?' ed':'');
+  el.appendChild(mkSvg());
+  const c=document.createElement('div'); c.className='bc evh'; c.style.top=CAP+'px';
+  const t=document.createElement('span'); t.className='bt'; t.textContent='при команді чату'; c.appendChild(t);
+  const f=document.createElement('span'); f.className='field fstr ro'; f.textContent='1'; c.appendChild(f);
+  el.appendChild(c);
+  return el;
+}
+function shapeEvent(el,w,hh,ih){
+  const svg=el.querySelector('.bsvg'); const H=CAP+hh+ih+BH;
+  svg.setAttribute('width',w); svg.setAttribute('height',H);
+  const p=svg.firstChild; p.setAttribute('d',evPath(w,hh,ih)); p.setAttribute('fill',COL.ev.f); p.setAttribute('stroke',COL.ev.s);
+  el.style.width=w+'px'; el.style.height=H+'px';
+  return H;
+}
+function makeTools(b){
+  const t=document.createElement('div'); t.className='btools';
+  [['↑','up','Вище',()=>moveBlock(b.id,-1)],['↓','dn','Нижче',()=>moveBlock(b.id,1)],['✕','del','Видалити',()=>delBlock(b.id)]]
+  .forEach(([s,c,title,f])=>{
+    const bt=document.createElement('button'); bt.textContent=s; bt.className=c; bt.title=title;
+    bt.addEventListener('pointerdown',e=>e.stopPropagation());
+    bt.addEventListener('click',e=>{e.stopPropagation(); f();});
+    t.appendChild(bt);
+  });
+  return t;
+}
+
+/* ================= робоча область ================= */
+const wsInner=$('wsInner'), wsScroll=$('wsScroll');
+let progEls=[], innerStartY=0, marker=null;
+function renderProgram(){
+  wsInner.innerHTML='';
+  const ev=makeEvent(true); ev.style.left=EX+'px'; ev.style.top=EY+'px'; wsInner.appendChild(ev);
+  const els=program.map(b=>{const e=makeStmt(b,true); wsInner.appendChild(e); return e;});
+  const hc=ev.querySelector('.bc'); const hh=hc.offsetHeight, hw=Math.max(hc.offsetWidth,230);
+  let y=EY+CAP+hh; innerStartY=y; const x=EX+AW; let maxW=hw;
+  els.forEach((e,i)=>{
+    const {w,h}=shapeStmt(e,COL.agent);
+    e.style.left=x+'px'; e.style.top=y+'px'; y+=h; maxW=Math.max(maxW,AW+w);
+    const b=program[i];
+    if(hintIds.has(b.id)) e.classList.add('hint');
+    if(flashIds.has(b.id)) e.classList.add('flash');
+    if(runId===b.id) e.classList.add('run');
+  });
+  const ih=Math.max(y-innerStartY,30);
+  const H=shapeEvent(ev,hw,hh,ih);
+  wsInner.style.height=(EY+H+160)+'px';
+  wsInner.style.width=(EX+maxW+200)+'px';
+  marker=document.createElement('div'); marker.id='marker'; wsInner.appendChild(marker);
+  progEls=els;
+}
+function setRunHL(id){
+  runId=id;
+  progEls.forEach(e=>{
+    const on=+e.dataset.id===id; e.classList.toggle('run',on);
+    if(on){
+      const top=parseFloat(e.style.top), h=e.offsetHeight, st=wsScroll.scrollTop, ch=wsScroll.clientHeight;
+      if(top<st+10||top+h>st+ch-90) wsScroll.scrollTop=Math.max(0,top-ch/3);
+    }
+  });
+}
+function programChanged(){
+  if(run){ stopRun(); showMsg('Програму змінено. Запустіть її знову: напишіть у чат «1».','info'); }
+  answerMode=false; hintIds.clear();
+  renderProgram();
+}
+function moveBlock(id,d){
+  const i=program.findIndex(b=>b.id===id), j=i+d;
+  if(i<0||j<0||j>=program.length) return;
+  [program[i],program[j]]=[program[j],program[i]]; programChanged();
+}
+function delBlock(id){
+  const i=program.findIndex(b=>b.id===id); if(i<0) return;
+  program.splice(i,1); closePopup(); programChanged();
+}
+function newOf(t){ return t==='tp'?B.tp():t==='slot'?B.slot(1,1):t==='mv'?B.mv('fwd',1):B.pl(true); }
+function paletteAdd(t){
+  if(t==='ev'){ showMsg('Блок «при команді чату "1"» уже є в програмі. Усі інші блоки вкладаються всередину нього.','info'); return; }
+  program.push(newOf(t)); programChanged();
+  wsScroll.scrollTop=wsScroll.scrollHeight;
+}
+
+/* ---------- очищення ---------- */
+let clearArm=null;
+const clearBtn=$('clearBtn');
+clearBtn.onclick=()=>{
+  if(!clearArm){
+    clearBtn.textContent='Точно очистити? ✓'; clearBtn.classList.add('armed');
+    clearArm=setTimeout(()=>{clearArm=null; clearBtn.textContent='🗑 Очистити програму'; clearBtn.classList.remove('armed');},3000);
+    return;
+  }
+  clearTimeout(clearArm); clearArm=null; clearBtn.textContent='🗑 Очистити програму'; clearBtn.classList.remove('armed');
+  closePopup(); program=[]; flashIds.clear(); programChanged();
+};
+
+/* ================= палітра ================= */
+let cat='agent';
+const CATS=[{id:'agent',name:'Агент',c:COL.agent.f,ic:'🤖'},{id:'ev',name:'Події',c:COL.ev.f,ic:'⚡'}];
+function renderPalette(){
+  const cats=$('cats'); cats.innerHTML='';
+  CATS.forEach(k=>{
+    const d=document.createElement('div'); d.className='cat'+(cat===k.id?' sel':''); d.style.setProperty('--c',k.c);
+    d.innerHTML=`<span class="sq">${k.ic}</span>${k.name}`;
+    d.onclick=()=>{cat=k.id; renderPalette();};
+    cats.appendChild(d);
+  });
+  const fi=$('flyInner'); fi.innerHTML='';
+  let y=22;
+  if(cat==='agent'){
+    ['tp','slot','mv','pl'].forEach(t=>{
+      const el=makeStmt(newOf(t),false); el.classList.add('pal'); el.dataset.type=t;
+      fi.appendChild(el); const {h}=shapeStmt(el,COL.agent);
+      el.style.left='18px'; el.style.top=y+'px'; y+=h+ND+24;
+    });
+  }else{
+    const el=makeEvent(false); el.classList.add('pal'); el.dataset.type='ev'; fi.appendChild(el);
+    const hc=el.querySelector('.bc'); const H=shapeEvent(el,Math.max(hc.offsetWidth,230),hc.offsetHeight,30);
+    el.style.left='18px'; el.style.top=(y+8)+'px'; y+=H+40;
+  }
+  const help=document.createElement('div'); help.id='flyHelp'; help.style.top=(y+6)+'px';
+  help.innerHTML='👆 Клік по блоку — додати в кінець програми.<br>✋ Або перетягніть блок у потрібне місце.';
+  fi.appendChild(help);
+  fi.style.height=(y+150)+'px';
+}
+
+/* ================= перетягування ================= */
+let cand=null, drag=null;
+wsInner.addEventListener('pointerdown',e=>{
+  if(e.button!==0) return;
+  const blk=e.target.closest('.blk'); if(!blk||blk.classList.contains('ev')) return;
+  if(e.target.closest('.field,.btools')) return;
+  cand={kind:'prog',id:+blk.dataset.id,el:blk,x:e.clientX,y:e.clientY}; e.preventDefault();
+});
+$('flyInner').addEventListener('pointerdown',e=>{
+  if(e.button!==0) return;
+  const blk=e.target.closest('.blk'); if(!blk) return;
+  cand={kind:'pal',type:blk.dataset.type,el:blk,x:e.clientX,y:e.clientY}; e.preventDefault();
+});
+addEventListener('pointermove',e=>{
+  if(cand&&!drag&&Math.hypot(e.clientX-cand.x,e.clientY-cand.y)>6) beginDrag(e);
+  if(drag) moveDrag(e);
+});
+addEventListener('pointerup',e=>{
+  if(drag) endDrag(e);
+  else if(cand&&cand.kind==='pal') paletteAdd(cand.type);
+  cand=null;
+});
+function inRect(e,el){const r=el.getBoundingClientRect(); return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;}
+function beginDrag(e){
+  closePopup();
+  const r=cand.el.getBoundingClientRect();
+  const ghost=cand.el.cloneNode(true); ghost.classList.add('ghost'); ghost.classList.remove('run','hint','flash');
+  stage.appendChild(ghost);
+  drag=Object.assign({},cand,{ghost,offX:(e.clientX-r.left)/S,offY:(e.clientY-r.top)/S,idx:null,del:false});
+  if(drag.kind==='prog') cand.el.classList.add('dsrc');
+  moveDrag(e);
+}
+function moveDrag(e){
+  const st=stage.getBoundingClientRect();
+  drag.ghost.style.left=((e.clientX-st.left)/S-drag.offX)+'px';
+  drag.ghost.style.top=((e.clientY-st.top)/S-drag.offY)+'px';
+  const overWs=inRect(e,$('ws')), overPal=inRect(e,$('palette'));
+  drag.del=drag.kind==='prog'&&overPal;
+  $('palette').classList.toggle('trash',drag.del);
+  if(overWs&&drag.type!=='ev'){
+    const list=progEls.filter(el=>!(drag.kind==='prog'&&+el.dataset.id===drag.id));
+    const refY=e.clientY-drag.offY*S+22*S;
+    let idx=0; list.forEach(el=>{const r=el.getBoundingClientRect(); if(r.top+r.height/2<refY) idx++;});
+    drag.idx=idx;
+    const ir=wsInner.getBoundingClientRect();
+    let my;
+    if(idx<list.length) my=(list[idx].getBoundingClientRect().top-ir.top)/S;
+    else if(list.length) my=(list[list.length-1].getBoundingClientRect().bottom-ir.top)/S;
+    else my=innerStartY;
+    marker.style.display='block'; marker.style.left=(EX+AW)+'px'; marker.style.top=(my-4)+'px';
+  }else{ drag.idx=null; if(marker) marker.style.display='none'; }
+}
+function endDrag(){
+  const d=drag; drag=null;
+  d.ghost.remove(); $('palette').classList.remove('trash'); if(marker) marker.style.display='none';
+  if(d.kind==='prog'){
+    const i=program.findIndex(b=>b.id===d.id);
+    if(d.del&&i>=0){ program.splice(i,1); programChanged(); return; }
+    if(d.idx!==null&&i>=0){ const [b]=program.splice(i,1); program.splice(d.idx,0,b); programChanged(); return; }
+    d.el.classList.remove('dsrc');
+  }else if(d.idx!==null&&d.type!=='ev'){
+    program.splice(d.idx,0,newOf(d.type)); programChanged();
+  }
+}
+
+/* ================= редактори полів ================= */
+let popup=null;
+function closePopup(){ if(popup){popup.remove(); popup=null;} }
+function placePopup(pop,fe){
+  const st=stage.getBoundingClientRect(), r=fe.getBoundingClientRect();
+  stage.appendChild(pop);
+  let x=(r.left-st.left)/S, y=(r.bottom-st.top)/S+12;
+  const w=pop.offsetWidth, h=pop.offsetHeight;
+  if(x+w>1910) x=1910-w;
+  if(y+h>1070) y=(r.top-st.top)/S-h-12;
+  pop.style.left=x+'px'; pop.style.top=y+'px'; popup=pop;
+}
+function openNum(b,k,fe){
+  closePopup();
+  const pop=document.createElement('div'); pop.className='popup';
+  pop.innerHTML='<div class="numrow"><button class="big minus">−</button><div class="nval"></div><button class="big plus">+</button></div><div class="quick"></div><button class="okb">Готово ✓</button>';
+  const val=pop.querySelector('.nval'), q=pop.querySelector('.quick');
+  for(let i=1;i<=10;i++){const bt=document.createElement('button'); bt.textContent=i; bt.onclick=()=>set(i); q.appendChild(bt);}
+  function show(){ val.textContent=b[k]; [...q.children].forEach((c,i)=>c.classList.toggle('cur',i+1===b[k])); }
+  function set(v){ v=Math.max(1,Math.min(10,v)); if(v===b[k]) return; b[k]=v; show(); programChanged(); }
+  pop.querySelector('.minus').onclick=()=>set(b[k]-1);
+  pop.querySelector('.plus').onclick=()=>set(b[k]+1);
+  pop.querySelector('.okb').onclick=closePopup;
+  show(); placePopup(pop,fe);
+}
+function openDrop(b,fe){
+  closePopup();
+  const pop=document.createElement('div'); pop.className='popup';
+  Object.keys(DIRS).forEach(d=>{
+    const bt=document.createElement('button'); bt.className='dropopt'+(b.dir===d?' cur':'');
+    bt.innerHTML=`<span class="ar">${DIRS[d].a}</span>${DIRS[d].l}`;
+    bt.onclick=()=>{ b.dir=d; closePopup(); programChanged(); };
+    pop.appendChild(bt);
+  });
+  placePopup(pop,fe);
+}
+addEventListener('pointerdown',e=>{
+  if(popup&&!popup.contains(e.target)&&!e.target.closest('.field')) closePopup();
+},true);
+addEventListener('keydown',e=>{ if(e.key==='Escape') closePopup(); });
+
+/* ================= світ ================= */
+const W={};
+let marks=[], pandaTimers=[];
+function resetWorld(){
+  clearPanda();
+  W.agent={...HOME}; W.hasFence=false; W.placeOn=false; W.fences=new Set();
+  W.warned=false; W.teleported=true; W.newFence=null; W.ran=false;
+  renderWorld();
+}
+function renderWorld(){
+  const fl=$('fenceL'); fl.innerHTML='';
+  W.fences.forEach(k=>{
+    const {x,y}=unkey(k);
+    const d=document.createElement('div'); d.className='cellE fence'+(k===W.newFence?' pop':'');
+    d.style.left=x*CELL+'px'; d.style.top=y*CELL+'px';
+    d.innerHTML=fenceSVG({u:W.fences.has(key(x,y-1)),d:W.fences.has(key(x,y+1)),l:W.fences.has(key(x-1,y)),r:W.fences.has(key(x+1,y))});
+    fl.appendChild(d);
+  });
+  W.newFence=null;
+
+  const ag=$('agent'), body=ag.querySelector('.body');
+  if(W.teleported){
+    ag.style.transition='none';
+    ag.style.left=W.agent.x*CELL+'px'; ag.style.top=W.agent.y*CELL+'px';
+    void ag.offsetWidth; ag.style.transition='';
+    body.classList.remove('tp'); void body.offsetWidth; body.classList.add('tp');
+    W.teleported=false;
+  }else{
+    const t=Math.round(Math.min(delay()*0.75,420));
+    ag.style.transition=`left ${t}ms ease, top ${t}ms ease, transform .3s`;
+    ag.style.left=W.agent.x*CELL+'px'; ag.style.top=W.agent.y*CELL+'px';
+  }
+  const pl=$('player'); pl.style.left=PLAYER.x*CELL+'px'; pl.style.top=PLAYER.y*CELL+'px';
+  const same=W.agent.x===PLAYER.x&&W.agent.y===PLAYER.y;
+  pl.classList.toggle('under',same); ag.classList.toggle('over',same);
+
+  const bub=$('bubble');
+  if(W.hasFence){ bub.className='on'; bub.innerHTML=FENCE_ICON; }
+  else if(W.warned){ bub.className='on err'; bub.textContent='⚠ пусто'; }
+  else { bub.className=''; bub.innerHTML=''; }
+
+  $('slotBox').innerHTML=W.hasFence?FENCE_ICON:'';
+  const pp=$('placePill'); pp.className='pill '+(W.placeOn?'on':'off'); pp.textContent=W.placeOn?'УВІМКН.':'ВИМКН.';
+  $('fcount').textContent='Блоків паркану: '+W.fences.size;
+}
+function renderOutline(){
+  const L=$('outlineL'); L.innerHTML='';
+  const o=OUTLINES[level]; if(!o) return;
+  for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++){
+    if(x!==o.x0&&x!==o.x1&&y!==o.y0&&y!==o.y1) continue;
+    const d=document.createElement('div'); d.className='cellE ol'; d.style.left=x*CELL+'px'; d.style.top=y*CELL+'px'; L.appendChild(d);
+  }
+}
+function renderMarks(){
+  const L=$('markL'); L.innerHTML='';
+  marks.forEach(m=>{const d=document.createElement('div'); d.className='cellE mark '+m.c; d.style.left=m.x*CELL+'px'; d.style.top=m.y*CELL+'px'; L.appendChild(d);});
+}
+
+/* ---------- повідомлення ---------- */
+function showMsg(html,type){ const m=$('msg'); m.className=type||'info'; $('msgText').innerHTML=html; }
+function hideMsg(){ $('msg').className='hidden'; }
+$('msgClose').onclick=hideMsg;
+
+/* ================= виконання програми ================= */
+let run=null;
+const speed=$('speed');
+function delay(){ return Math.round(1300-(+speed.value)*8.5); }   // повільно 1300 мс … нормально 450 мс
+function compile(){
+  const st=[];
+  program.forEach(b=>{ if(b.type==='mv'){ for(let k=0;k<b.n;k++) st.push({b,k}); } else st.push({b}); });
+  return st;
+}
+function startRun(auto){
+  closePopup(); stopRun(); resetWorld(); hideMsg();
+  if(!program.length){ showMsg('Програма порожня. Додайте блоки з палітри зліва.','warn'); return false; }
+  run={steps:compile(),pc:0,auto,timer:null}; W.ran=true;
+  updateRunButtons();
+  if(auto) run.timer=setTimeout(advance,500);
+  return true;
+}
+function stopRun(){
+  if(!run) return;
+  clearTimeout(run.timer); run=null; setRunHL(null); updateRunButtons();
+}
+function advance(){
+  if(!run) return;
+  const s=run.steps[run.pc++];
+  setRunHL(s.b.id);
+  exec(s);
+  if(!run) return;
+  clearTimeout(run.timer);
+  if(run.pc>=run.steps.length) run.timer=setTimeout(finishRun,Math.max(500,delay()));
+  else if(run.auto) run.timer=setTimeout(advance,delay());
+  updateRunButtons();
+}
+function exec(s){
+  const b=s.b;
+  if(b.type==='tp'){
+    W.agent={...PLAYER}; W.teleported=true;
+    if(W.placeOn) placeFence();
+  }else if(b.type==='slot'){
+    if(b.slot===1) W.hasFence=true;
+    else showMsg(`Паркан покладено у слот ${b.slot}, а Агент будує з предмета у слоті 1!`,'warn');
+  }else if(b.type==='mv'){
+    const d=DIRS[b.dir], nx=W.agent.x+d.dx, ny=W.agent.y+d.dy;
+    if(!inB(nx,ny)) showMsg('Агент дійшов до краю світу — далі йти не можна!','warn');
+    else { W.agent={x:nx,y:ny}; if(W.placeOn) placeFence(); }
+  }else if(b.type==='pl'){
+    W.placeOn=b.on;
+    if(b.on) placeFence();
+  }
+  renderWorld();
+}
+function placeFence(){
+  if(!W.hasFence){
+    if(!W.warned){ W.warned=true; showMsg('У Агента немає паркану в інвентарі!','err'); }
+    return;
+  }
+  const k=key(W.agent.x,W.agent.y);
+  if(!W.fences.has(k)){ W.fences.add(k); W.newFence=k; }
+}
+function finishRun(){
+  if(!run) return;
+  clearTimeout(run.timer); run=null; setRunHL(null); updateRunButtons();
+  const wasAns=answerMode; answerMode=false;
+  if(W.warned) showMsg('У Агента немає паркану в інвентарі! Агент пройшов увесь шлях, але будувати не було з чого. 🎒','err');
+  else if(!W.fences.size) showMsg('Агент пройшов увесь шлях, але не поставив жодного паркану. Чому так? 🤔','warn');
+  else showMsg(`Програму виконано! Блоків паркану: ${W.fences.size}.<br>Тепер натисніть «🐼 Випустити панду».`,'info');
+  if(wasAns) pandaTimers.push(setTimeout(releasePanda,1000));
+}
+function updateRunButtons(){
+  const rb=$('runBtn');
+  if(run&&run.auto){ rb.textContent='⏸ Пауза'; rb.className='btn orange'; }
+  else if(run){ rb.textContent='▶ Продовжити'; rb.className='btn green'; }
+  else { rb.textContent='▶ Запуск'; rb.className='btn green'; }
+}
+$('runBtn').onclick=()=>{
+  if(!run){ startRun(true); return; }
+  if(run.auto){ run.auto=false; if(run.pc<run.steps.length) clearTimeout(run.timer); updateRunButtons(); }
+  else { run.auto=true; updateRunButtons(); if(run.pc<run.steps.length) advance(); }
+};
+$('stepBtn').onclick=()=>{
+  if(!run){ if(startRun(false)) advance(); return; }
+  run.auto=false; clearTimeout(run.timer);
+  if(run.pc<run.steps.length) advance(); else finishRun();
+};
+$('chatIn').addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  const v=e.target.value.trim();
+  if(v==='1'){ e.target.value=''; startRun(true); }
+  else if(v==='') showMsg('Напишіть у чат <b>1</b> і натисніть Enter — так запускається програма.','info');
+  else showMsg(`Програма запускається командою «1». У чаті написано «${esc(v)}».`,'warn');
+});
+$('resetBtn').onclick=()=>{ stopRun(); answerMode=false; resetWorld(); hideMsg(); };
+
+/* ================= перевірка загону ================= */
+const D4=[[0,-1],[1,0],[0,1],[-1,0]];
+function enclosed(fs){
+  const out=new Uint8Array(N*N), q=[];
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+    if((x===0||y===0||x===N-1||y===N-1)&&!fs.has(key(x,y))){ out[y*N+x]=1; q.push([x,y]); }
+  }
+  while(q.length){
+    const [x,y]=q.pop();
+    for(const [dx,dy] of D4){ const nx=x+dx, ny=y+dy; if(!inB(nx,ny)) continue; const i=ny*N+nx;
+      if(out[i]||fs.has(key(nx,ny))) continue; out[i]=1; q.push([nx,ny]); }
+  }
+  const seen=new Uint8Array(N*N), regs=[];
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+    const i=y*N+x; if(out[i]||seen[i]||fs.has(key(x,y))) continue;
+    const reg=[], st=[[x,y]]; seen[i]=1;
+    while(st.length){
+      const [cx,cy]=st.pop(); reg.push({x:cx,y:cy});
+      for(const [dx,dy] of D4){ const nx=cx+dx, ny=cy+dy; if(!inB(nx,ny)) continue; const j=ny*N+nx;
+        if(seen[j]||out[j]||fs.has(key(nx,ny))) continue; seen[j]=1; st.push([nx,ny]); }
+    }
+    regs.push(reg);
+  }
+  return regs;
+}
+function near8(x,y,set){
+  for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ if((dx||dy)&&set.has(key(x+dx,y+dy))) return true; }
+  return false;
+}
+const largest=regs=>regs.reduce((a,b)=>b.length>a.length?b:a);
+function bbox(cells){
+  let x0=99,y0=99,x1=-1,y1=-1;
+  cells.forEach(c=>{x0=Math.min(x0,c.x);y0=Math.min(y0,c.y);x1=Math.max(x1,c.x);y1=Math.max(y1,c.y);});
+  return {x0,y0,x1,y1,w:x1-x0+1,h:y1-y0+1};
+}
+function pickStart(cells){
+  const cx=cells.reduce((s,c)=>s+c.x,0)/cells.length, cy=cells.reduce((s,c)=>s+c.y,0)/cells.length;
+  const busy=c=>(c.x===PLAYER.x&&c.y===PLAYER.y)||(c.x===W.agent.x&&c.y===W.agent.y);
+  const sorted=cells.slice().sort((a,b)=>Math.hypot(a.x-cx,a.y-cy)-Math.hypot(b.x-cx,b.y-cy));
+  return sorted.find(c=>!busy(c))||sorted[0];
+}
+function pathOut(fs,s){
+  const prev=new Map([[key(s.x,s.y),null]]), q=[s]; let end=null;
+  while(q.length){
+    const c=q.shift();
+    if(c.x===0||c.y===0||c.x===N-1||c.y===N-1){ end=c; break; }
+    for(const [dx,dy] of D4){ const nx=c.x+dx, ny=c.y+dy, k=key(nx,ny);
+      if(!inB(nx,ny)||fs.has(k)||prev.has(k)) continue; prev.set(k,c); q.push({x:nx,y:ny}); }
+  }
+  if(!end) return [s];
+  const p=[]; let c=end; while(c){ p.push(c); c=prev.get(key(c.x,c.y)); }
+  return p.reverse();
+}
+function analyze(fs){
+  if(!fs.size) return {kind:'empty'};
+  const regs=enclosed(fs);
+  if(regs.length){
+    const interior=new Set(); regs.forEach(r=>r.forEach(c=>interior.add(key(c.x,c.y))));
+    const pen=largest(regs);
+    const extras=[...fs].map(unkey).filter(c=>!near8(c.x,c.y,interior));
+    return {kind:'closed',pen,start:pickStart(pen),extras,bb:bbox(pen)};
+  }
+  // Пошук дірки: яка ОДНА клітинка замкнула б загін?
+  let best=null;
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+    const k=key(x,y); if(fs.has(k)||!near8(x,y,fs)) continue;
+    const f2=new Set(fs); f2.add(k);
+    const r=enclosed(f2); if(!r.length) continue;
+    const size=largest(r).length;
+    const gap=(fs.has(key(x-1,y))&&fs.has(key(x+1,y)))||(fs.has(key(x,y-1))&&fs.has(key(x,y+1)));
+    const score=(gap?1000:0)+size;
+    if(!best||score>best.score) best={score,x,y,regs:r};
+  }
+  if(best){
+    const pen=largest(best.regs), hole={x:best.x,y:best.y}, start=pickStart(pen);
+    let path=pathOut(fs,start);
+    const hi=path.findIndex(c=>c.x===hole.x&&c.y===hole.y);
+    if(hi>=0) path=path.slice(0,Math.min(path.length,hi+4));
+    return {kind:'hole',start,path,hole};
+  }
+  // Кілька дірок або паркан не схожий на загін
+  const bb=bbox([...fs].map(unkey));
+  if(bb.w<3||bb.h<3) return {kind:'small'};
+  const cx=(bb.x0+bb.x1)/2, cy=(bb.y0+bb.y1)/2; let start=null, bd=1e9;
+  for(let y=bb.y0+1;y<bb.y1;y++) for(let x=bb.x0+1;x<bb.x1;x++){
+    if(fs.has(key(x,y))) continue; const d=Math.hypot(x-cx,y-cy); if(d<bd){bd=d; start={x,y};}
+  }
+  if(!start) return {kind:'small'};
+  let path=pathOut(fs,start), ei=0;
+  path.forEach((c,i)=>{ if(c.x>=bb.x0&&c.x<=bb.x1&&c.y>=bb.y0&&c.y<=bb.y1) ei=i; });
+  const hole=path[ei]; path=path.slice(0,Math.min(path.length,ei+4));
+  return {kind:'hole',start,path,hole};
+}
+function clearPanda(){
+  pandaTimers.forEach(clearTimeout); pandaTimers=[];
+  $('panda').classList.add('hidden'); $('fxL').innerHTML='';
+  marks=[]; renderMarks();
+}
+function setPanda(c,instant){
+  const p=$('panda');
+  if(instant) p.style.transition='none';
+  p.style.left=c.x*CELL+'px'; p.style.top=c.y*CELL+'px';
+  if(instant){ void p.offsetWidth; p.style.transition=''; }
+}
+function hearts(c){
+  for(let i=0;i<10;i++) pandaTimers.push(setTimeout(()=>{
+    const h=document.createElement('div'); h.className='heart'; h.textContent='♥';
+    h.style.left=(c.x*CELL+Math.random()*34-8)+'px'; h.style.top=(c.y*CELL-8)+'px';
+    $('fxL').appendChild(h); setTimeout(()=>h.remove(),1800);
+  },700+i*280));
+}
+function releasePanda(){
+  if(run){ showMsg('Зачекайте — Агент ще будує!','warn'); return; }
+  closePopup(); clearPanda();
+  const a=analyze(W.fences);
+  if(a.kind==='empty'){ showMsg(W.ran?'Паркану немає зовсім — панда пішла гуляти! 🐼 Що зламалося в програмі?':'Паркану ще немає. Спершу запустіть програму: напишіть у чат «1».','warn'); return; }
+  if(a.kind==='small'){ showMsg('Загін замалий: усередині немає жодної вільної клітинки, куди можна поставити панду.','warn'); return; }
+  const p=$('panda'); setPanda(a.start,true);
+  p.classList.remove('hidden','drop'); void p.offsetWidth; p.classList.add('drop');
+
+  if(a.kind==='closed'){
+    hearts(a.start);
+    let type='ok', html='Загін готовий! Панда в безпеці 🐼💚';
+    const outW=a.bb.w+2, outH=a.bb.h+2;
+    if(level===1){
+      if(outW===8&&outH===6) html='Загін готовий! Панда в безпеці 🐼💚<br>Ширина загону — 8 клітинок: коням якраз!';
+      else { type='warn'; html=`Загін закритий, панда в безпеці.<br>Але ширина загону — ${outW}, а коням треба 8. Які числа змінити?`; }
+    }else if(level===3){
+      const o=OUTLINES[3];
+      let ringOk=true;
+      for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++)
+        if((x===o.x0||x===o.x1||y===o.y0||y===o.y1)&&!W.fences.has(key(x,y))) ringOk=false;
+      const exact=ringOk&&a.bb.x0===o.x0+1&&a.bb.y0===o.y0+1&&a.bb.w===3&&a.bb.h===3&&a.pen.length===9;
+      if(exact) html='Точно за кресленням! 🎉 Загін готовий, панда в безпеці 🐼💚';
+      else { type='warn'; html='Загін закритий, панда в безпеці. Але він не збігається з кресленням — порівняйте з білим контуром!'; }
+    }
+    if(a.extras.length){
+      marks=a.extras.map(c=>({x:c.x,y:c.y,c:'yel'})); renderMarks();
+      html+='<span class="yel">🟨 Цей паркан зайвий. Яку цифру змінити?</span>';
+    }
+    showMsg(html,type);
+    return;
+  }
+  // панда тікає через дірку
+  showMsg('Панда оглядається… 👀','info');
+  let i=1;
+  const walk=()=>{
+    if(i<a.path.length){
+      const c=a.path[i++]; setPanda(c);
+      if(c.x===a.hole.x&&c.y===a.hole.y){ marks=[{x:c.x,y:c.y,c:'red'}]; renderMarks(); }
+      pandaTimers.push(setTimeout(walk,450));
+    }else{
+      marks=[{x:a.hole.x,y:a.hole.y,c:'red'}]; renderMarks();
+      showMsg('Ой! Панда знайшла вихід тут 🔴<br>Яку команду треба змінити, щоб дірки не було?','err');
+    }
+  };
+  pandaTimers.push(setTimeout(walk,1000));
+}
+$('pandaBtn').onclick=releasePanda;
+
+/* ================= рівні ================= */
+function buildBreak(){
+  const p=lessonProgram();
+  if(breakIdx===0){ p[5].n=3; breakHintId=p[5].id; }                 // а) «ліворуч 3» замість 4 → дірка
+  else if(breakIdx===1){ breakHintId=p[5].id; p.splice(4,1); }       // б) немає «розмістити на ходу УВІМКН.»
+  else { breakHintId=p[4].id; p.splice(1,1); }                       // в) немає «постав блок або предмет»
+  program=p;
+}
+function loadLevel(i){
+  stopRun(); closePopup();
+  level=i; hintIds.clear(); flashIds.clear(); answerMode=false; answerNote='';
+  if(i===0||i===1) program=lessonProgram();
+  else if(i===2) buildBreak();
+  else program=[B.tp()];
+  resetWorld(); hideMsg(); renderLevelUI(); renderProgram(); renderOutline();
+  wsScroll.scrollTop=0;
+}
+function renderLevelUI(){
+  const L=LV[level];
+  $('lvlTitle').innerHTML=`<small>Рівень ${level+1} з 4</small>«${L.name}»`;
+  $('prevBtn').disabled=level===0; $('nextBtn').disabled=level===LV.length-1;
+  $('qtext').textContent=L.q;
+  const sub=$('qsub');
+  if(answerNote){ sub.textContent=answerNote; sub.className='ans'; }
+  else {
+    sub.className='';
+    sub.textContent=level===2?`Поломка ${BREAK_NAMES[breakIdx]} з 3. Запустіть програму й подивіться, що зробить Агент.`:L.sub;
+  }
+  $('hintBtn').classList.toggle('hidden',level===0);
+  $('breakBtn').classList.toggle('hidden',level!==2);
+  $('breakBtn').textContent=`🔧 Наступна поломка (${BREAK_NAMES[(breakIdx+1)%3]})`;
+}
+$('prevBtn').onclick=()=>{ if(level>0) loadLevel(level-1); };
+$('nextBtn').onclick=()=>{ if(level<LV.length-1) loadLevel(level+1); };
+$('breakBtn').onclick=()=>{ breakIdx=(breakIdx+1)%3; loadLevel(2); };
+
+$('hintBtn').onclick=()=>{
+  closePopup(); hintIds.clear();
+  let text='';
+  if(level===1){
+    program.forEach(b=>{ if(b.type==='mv'&&(b.dir==='left'||b.dir==='right')&&b.n>=4) hintIds.add(b.id); });
+    text='💡 Підказка: ширину загону задають кроки ліворуч і праворуч.';
+  }else if(level===2){
+    if(program.some(b=>b.id===breakHintId)) hintIds.add(breakHintId);
+    text=[
+      '💡 Підказка: порівняйте числа. Чи однакові верхня і нижня сторони загону?',
+      '💡 Підказка: Агент іде, але не будує. Чого не вистачає перед цим блоком?',
+      '💡 Підказка: Агент хоче будувати. А з чого? Що має лежати в його інвентарі?'
+    ][breakIdx];
+  }else if(level===3){
+    text='💡 Підказка: порахуйте клітинки на кожній стороні контуру. І що потрібно Агенту, щоб будувати?';
+  }
+  renderProgram(); showMsg(text,'info');
+};
+
+$('answerBtn').onclick=()=>{
+  closePopup(); hintIds.clear(); flashIds.clear();
+  if(level===0){
+    program=lessonProgram();
+    answerNote='Відповідь: дивимось, що побудує Агент, і випускаємо панду!';
+  }else if(level===1){
+    const p=lessonProgram(); p[5].n=6; p[7].n=7; flashIds.add(p[5].id); flashIds.add(p[7].id); program=p;
+    answerNote='Відповідь: «ліворуч 4» → 6, «праворуч 5» → 7.';
+  }else if(level===2){
+    const p=lessonProgram();
+    flashIds.add([p[5].id,p[4].id,p[1].id][breakIdx]); program=p;
+    answerNote=[
+      'Відповідь: у блоці «переміститися ліворуч» має бути 4, а не 3.',
+      'Відповідь: бракувало блоку «розмістити на ходу УВІМКН.»',
+      'Відповідь: бракувало блоку «постав блок або предмет паркан у слот 1».'
+    ][breakIdx];
+  }else{
+    const p=[B.tp(),B.slot(1,1),B.mv('fwd',1),B.pl(true),B.mv('fwd',4),B.mv('right',4),B.mv('back',4),B.mv('left',4),B.pl(false)];
+    p.slice(1).forEach(b=>flashIds.add(b.id)); program=p;
+    answerNote='Один із варіантів: вперед 1 → УВІМКН. → вперед 4 → праворуч 4 → назад 4 → ліворуч 4.';
+  }
+  renderLevelUI(); renderProgram();
+  if(startRun(true)) answerMode=true;
+};
+
+/* ================= старт ================= */
+renderPalette();
+loadLevel(0);
+})();
+</script>
+</body>
+</html>
