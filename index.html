@@ -68,6 +68,38 @@ button{font-family:inherit}
 .step b{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#7a4f26;color:#fff;
   border:3px solid #2c1d0c;font-size:24px;margin-top:-2px}
 #tCheck{font-size:28px;font-weight:600;color:#245c12;line-height:1.2}
+#gBox{display:flex;flex-direction:column;gap:6px}
+#gTrack{display:flex;align-items:center;gap:8px;font-size:24px}
+.gst{display:flex;align-items:center;gap:8px;padding:4px 12px 6px;border:3px solid #a07a48;background:#ead6a0;color:#8a6a3c;transition:transform .2s}
+.gst b{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#b08850;color:#fff;border:2px solid #5b3a18;font-weight:normal}
+.gst.cur{background:#ffd84a;color:#2c1d0c;border-color:#2c1d0c;transform:scale(1.07)}
+.gst.cur b{background:#d83b01}
+.gst.done{background:#c6e6ae;color:#245c12;border-color:#245c12}
+.gst.done b{background:#3c8527}
+.garr{color:#7a4f26;font-size:26px}
+#gQ{font-size:36px;line-height:1.15;margin-top:6px}
+#gA{font-size:30px;line-height:1.15;color:#245c12;min-height:34px}
+#gCtl{display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:center;height:100%}
+#gCtl .mcb.big{font-size:34px;padding:14px 28px 16px}
+.gsmall{display:flex;gap:8px}
+.gsmall .mcb{flex:1}
+.choice{display:flex;align-items:center;justify-content:center;font-family:var(--pix);font-size:30px;color:#fff;text-shadow:2px 2px 0 #000;
+  background:rgba(30,90,200,.8);outline:3px solid #fff;outline-offset:-3px;z-index:3;animation:pulse .7s ease-in-out infinite alternate}
+.lt{font-family:var(--mc);font-weight:800;display:inline-block;min-width:1.25em;padding:0 .22em;margin:0 .06em;color:#fff;border:3px solid #000;text-align:center;text-shadow:none;line-height:1.15}
+.lA{background:#d63a2f}.lB{background:#1f6fd1}.lC{background:#b8860b}
+.choice.cA{background:rgba(214,58,47,.88)}.choice.cB{background:rgba(31,111,209,.88)}.choice.cC{background:rgba(184,134,11,.92)}
+.choice{font-family:var(--mc);font-weight:800}
+.choice.ok{background:rgba(60,170,40,.92);animation:none;box-shadow:0 0 18px #7CFC00}
+.choice.no{opacity:.22;animation:none}
+.slot.pulse,.pill.pulse{animation:hl .6s ease-in-out infinite alternate}
+@keyframes hl{from{box-shadow:0 0 0 0 #ffe31a}to{box-shadow:0 0 0 6px #ffe31a,0 0 22px #ffe31a}}
+.mbox.wide{width:1260px}
+.memo{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 26px;text-align:center}
+.memo .mc{background:#8b8b8b;border:3px solid;border-color:#373737 #fff #fff #373737;padding:12px 10px;color:#fff;text-shadow:2px 2px 0 #333}
+.memo .mh{font-size:28px;margin-bottom:8px}
+.memo .mb{font-family:var(--mc);font-weight:600;font-size:17px;color:#fff;background:#D83B01;border-radius:6px;padding:8px;margin:6px 0;text-shadow:none}
+.memo .mb.ev{background:#0078D7}
+.memo .mt{font-size:24px;margin-top:8px;color:#ffffa0}
 #tSide{flex:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px}
 #tBadge{font-size:26px;font-weight:700;background:#7a4f26;color:#fff;padding:6px 14px;border:3px solid #2c1d0c}
 #tBadge:empty{display:none}
@@ -253,8 +285,8 @@ button{font-family:inherit}
   </div>
 
   <div id="taskWrap"><div id="task">
-    <div id="tMain"><div id="tTitle"></div><div id="tSteps"></div><div id="tCheck"></div></div>
-    <div id="tSide"><div id="tBadge"></div><button id="hintBtn" class="mcb">💡 Підказка</button></div>
+    <div id="tMain"><div id="tTitle"></div><div id="tSteps"></div><div id="tCheck"></div><div id="gBox" class="hidden"><div id="gTrack"></div><div id="gQ"></div><div id="gA"></div></div></div>
+    <div id="tSide"><div id="tBadge"></div><button id="hintBtn" class="mcb">💡 Підказка</button><div id="gCtl" class="hidden"><button id="gMain" class="mcb green big">Перевіряємо! ✔</button><div class="gsmall"><button id="gBack" class="mcb small">◀ Крок назад</button><button id="gRestart" class="mcb small">↺ Спочатку</button></div></div></div>
   </div></div>
 
   <div id="main">
@@ -283,6 +315,7 @@ button{font-family:inherit}
             <div id="player" class="spr"><div class="body"></div></div>
             <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div></div>
             <div id="animalsL" class="layer"></div>
+            <div id="choiceL" class="layer"></div>
             <div id="fxL" class="layer"></div>
             <div id="msg" class="hidden"><div id="msgText"></div><button id="msgClose" class="mcb small" title="Закрити">✕</button></div>
           </div>
@@ -298,7 +331,7 @@ button{font-family:inherit}
         <div id="chatBar"><span>Чат:</span><input id="chatIn" type="text" placeholder="напиши 1 і натисни Enter" autocomplete="off" maxlength="20"></div>
         <button id="runBtn" class="mcb green big">▶ Запустити</button>
       </div>
-      <div class="row">
+      <div class="row" id="btnRow">
         <button id="resetBtn" class="mcb">↺ Скинути світ</button>
         <button id="animalBtn" class="mcb" disabled>🐼 Випустити панду</button>
       </div>
@@ -477,8 +510,8 @@ let answerMode=false, built=false, hintStep=0, typing=false;
 const completed=new Set();
 
 const LV=[
-  {name:'Повтори команди', animal:'panda', count:1, btn:'🐼 Випустити панду', sample:true, marks:true,
-   palette:()=>['tp','slot','mv','pl'],
+  {name:'Як агент будує загін', animal:'panda', count:1, btn:'🐼 Випустити панду', guided:true, locked:true,
+   home:{x:1,y:13}, palette:()=>[],
    title:'🎯 Повтори команди зі зразка, щоб агент побудував загін.',
    steps:['Додавай блоки по черзі, як у зразку.','Напиши в чат "1" або натисни "▶ Запустити".','Випусти панду.'],
    check:'✅ Панда залишилась у загоні — команди повторено правильно.'},
@@ -865,7 +898,7 @@ const W={};
 let marks=[], animalTimers=[], animals=[];
 function resetWorld(){
   clearAnimals();
-  W.agent={...HOME}; W.hasFence=false; W.slotCount=0; W.placeOn=false; W.fences=new Set();
+  W.agent={...(LV[level].home||HOME)}; W.hasFence=false; W.slotCount=0; W.placeOn=false; W.fences=new Set();
   W.warned=false; W.teleported=true; W.newFence=null;
   built=false; updateButtons();
   renderWorld();
@@ -898,7 +931,7 @@ function renderWorld(){
     d.innerHTML=fenceSVG({u:W.fences.has(key(x,y-1)),d:W.fences.has(key(x,y+1)),l:W.fences.has(key(x-1,y)),r:W.fences.has(key(x+1,y))});
     fl.appendChild(d);
   });
-  if(W.newFence){ const {x,y}=unkey(W.newFence); particles(x,y); sPlace(); }
+  if(W.newFence&&!W.silent){ const {x,y}=unkey(W.newFence); particles(x,y); sPlace(); }
   W.newFence=null;
 
   const ag=$('agent'), body=ag.querySelector('.body');
@@ -1221,7 +1254,7 @@ function releaseAnimals(){
     showMsg(html,type);
     if(win){
       animalTimers.push(setTimeout(()=>{ sWin(); animals.forEach(an=>puff(an.x,an.y)); },600));
-      animalTimers.push(setTimeout(levelWon,2600));
+      if(!LV[level].guided) animalTimers.push(setTimeout(levelWon,2600));
     }else sFail();
     return;
   }
@@ -1258,6 +1291,7 @@ $('animalBtn').onclick=releaseAnimals;
 /* ================= перемога і вікна ================= */
 let modalGo=null;
 function showModal(title,text,goLabel,go,stay){
+  document.querySelector('.mbox').classList.remove('wide');
   $('mTitle').textContent=title; $('mText').textContent=text; $('mGo').textContent=goLabel;
   $('mStay').classList.toggle('hidden',!stay);
   modalGo=go; $('modal').classList.remove('hidden');
@@ -1308,12 +1342,16 @@ function loadLevel(i,keepBreak){
   const L=LV[level];
   $('sampleCol').classList.toggle('hidden',!L.sample);
   $('wsHelp').classList.toggle('hidden',!!L.locked);
-  $('chatIn').value='';
+  $('chatIn').value=''; $('chatIn').readOnly=!!L.guided;
+  gStop();
+  ['tTitle','tSteps','tCheck','hintBtn','runBtn','btnRow','answerBtn'].forEach(id=>$(id).classList.toggle('hidden',!!L.guided));
+  ['gBox','gCtl'].forEach(id=>$(id).classList.toggle('hidden',!L.guided));
   renderTask(); renderProgress();
   resetWorld(); hideMsg(); renderOutline();
   renderPalette(); renderProgram();
   wsScroll.scrollTop=0;
   updateButtons();
+  if(L.guided) gGo(0);
 }
 $('prevBtn').onclick=()=>{ if(level>0) loadLevel(level-1); };
 $('nextBtn').onclick=()=>{ if(level<LV.length-1) loadLevel(level+1); };
@@ -1356,6 +1394,152 @@ $('answerBtn').onclick=()=>{
   renderProgram();
   if(startRun()) answerMode=true;
 };
+
+/* ================= рівень 1: як агент будує загін (покроково) ================= */
+const STAGES=['Покликати агента','Дати паркан','Показати шлях','Випустити тваринку'];
+const lk=arr=>{ arr.forEach(b=>b.lock=true); return arr; };
+const G=[
+  {stage:0, chat:true, add:()=>lk([B.tp()]),
+   q:'Агент далеко 🤖 Як покликати його до нас?',
+   a:'Пишемо в чат 1 — і агент телепортується до гравця!'},
+  {stage:1, pulse:'slot', add:()=>lk([B.slot(1,1)]),
+   q:'З чого агент буде будувати? Подивіться в його інвентар 👀',
+   a:'Кладемо паркан у слот 1. Тепер агенту є з чого будувати!'},
+  {stage:2, add:()=>lk([B.mv('fwd',3),B.mv('right',1)]),
+   choices:[{x:6,y:5,l:'А'},{x:7,y:5,l:'Б'},{x:8,y:5,l:'В',ok:true}],
+   q:'Спершу агент іде до кута загону. Куди він прийде: {А}, {Б} чи {В}?',
+   a:'{В}! Вперед на 3 клітинки, потім праворуч на 1.'},
+  {stage:2, pulse:'pill', add:()=>lk([B.pl(true)]),
+   q:'Вмикаємо розміщення на ходу. Що з’явиться під агентом?',
+   a:'Паркан! Тепер агент ставить паркан у кожній клітинці, де стоїть.'},
+  {stage:2, add:()=>lk([B.mv('left',4)]),
+   q:'Агент іде ліворуч на 4. Скільки нових блоків паркану з’явиться?',
+   a:'4 нові блоки! Перша сторона загону готова.'},
+  {stage:2, add:()=>lk([B.mv('back',5)]),
+   choices:[{x:4,y:0,l:'А'},{x:4,y:10,l:'Б',ok:true},{x:4,y:11,l:'В'}],
+   q:'Тепер назад на 5. Де опиниться агент: {А}, {Б} чи {В}?',
+   a:'{Б}! Назад — це вниз, рівно на 5 клітинок.'},
+  {stage:2, add:()=>lk([B.mv('right',5)]),
+   q:'Праворуч на 5. Яку сторону загону збудує агент?',
+   a:'Нижню сторону! Залишилась остання.'},
+  {stage:2, add:()=>lk([B.mv('fwd',6)]),
+   q:'Вперед на 6. Як думаєте, загін замкнеться?',
+   a:'Так! Остання сторона готова — загін замкнувся.'},
+  {stage:2, pulse:'pill', add:()=>lk([B.pl(false)]),
+   q:'Загін готовий. Як сказати агенту, щоб він перестав будувати?',
+   a:'Вимикаємо розміщення на ходу — і агент більше нічого не ставить.'},
+  {stage:3, panda:true,
+   q:'Як думаєте, панда залишиться в загоні? 👍 чи 👎',
+   a:'Залишилась! Загін закритий — панда в безпеці 💚'},
+  {stage:4, trap:'slot',
+   q:'🧠 А що буде, якщо забути дати агенту паркан?',
+   a:'Агент іде, але паркану немає — панда тікає! Етап 2 дуже важливий.'},
+  {stage:4, trap:'pl',
+   q:'🧠 А якщо не увімкнути розміщення на ходу?',
+   a:'Агент просто гуляє — паркан не з’являється. Етап 3 теж потрібен!'}
+];
+let gi=0, gState='ask', gBusy=false, gTimers=[];
+function gStop(){ gTimers.forEach(clearTimeout); gTimers=[]; gBusy=false; setRunHL(null); }
+const gLater=(f,ms)=>gTimers.push(setTimeout(f,ms));
+const compileOf=blocks=>{ const st=[]; blocks.forEach(b=>{ if(b.type==='mv') for(let k=0;k<b.n;k++) st.push({b,k}); else st.push({b}); }); return st; };
+function playBlocks(blocks,ms,done){
+  const st=compileOf(blocks); let i=0;
+  const tick=()=>{
+    if(i>=st.length){ setRunHL(null); done(); return; }
+    const s=st[i++]; setRunHL(s.b.id); exec(s); gLater(tick,ms);
+  };
+  gLater(tick,400);
+}
+function typeChat(cb){
+  const ci=$('chatIn'), bar=$('chatBar'); ci.value='';
+  gLater(()=>{ ci.value='1'; sClick(); bar.classList.add('flash'); },300);
+  gLater(()=>{ bar.classList.remove('flash'); ci.value=''; cb(); },1000);
+}
+// стан світу і програми після кроків 0..idx-1 (миттєво, без ефектів)
+function gRebuild(idx){
+  clearAnimals(); hideMsg();
+  W.silent=true; resetWorld(); program=[];
+  for(let j=0;j<idx;j++){ if(!G[j].add) continue; const bl=G[j].add(); program.push(...bl); compileOf(bl).forEach(exec); }
+  W.silent=false; W.teleported=false; renderWorld();
+  flashIds.clear(); renderProgram();
+}
+function gGo(idx){
+  gStop(); gi=idx; gState='ask';
+  gRebuild(idx); renderGuided();
+}
+function renderGuided(){
+  const st=G[gi];
+  const lastOfStage=!G[gi+1]||G[gi+1].stage!==st.stage;
+  const isDone=i=>i<st.stage||(i===st.stage&&gState==='done'&&lastOfStage);
+  $('gTrack').innerHTML=STAGES.map((n,i)=>
+    `<div class="gst${isDone(i)?' done':''}${i===st.stage?' cur':''}"><b>${isDone(i)?'✔':i+1}</b>${n}</div>`
+  ).join('<span class="garr">→</span>');
+  $('tBadge').textContent=st.trap?'🧠 Перевірка':`Крок ${gi+1} з ${G.length}`;
+  const badges=t=>esc(t).replace(/\{([АБВ])\}/g,(m,l)=>`<span class="lt l${'АБВ'.indexOf(l)===0?'A':'АБВ'.indexOf(l)===1?'B':'C'}">${l}</span>`);
+  $('gQ').innerHTML=badges(st.q);
+  $('gA').innerHTML=gState==='done'?'✅ '+badges(st.a):'';
+  const m=$('gMain');
+  m.textContent=gBusy?'⏳ Дивимось…':gState==='ask'?'Перевіряємо! ✔':gi<G.length-1?'Далі ▶':'📋 Схема';
+  m.disabled=gBusy;
+  $('gBack').disabled=gBusy||(gi===0&&gState==='ask');
+  $('gRestart').disabled=gBusy;
+  const L=$('choiceL'); L.innerHTML='';
+  (st.choices||[]).forEach(c=>{
+    const d=document.createElement('div');
+    d.className='cellE choice c'+['A','B','C']['АБВ'.indexOf(c.l)]+(gState==='done'?(c.ok?' ok':' no'):'');
+    d.style.left=c.x*CELL+'px'; d.style.top=c.y*CELL+'px'; d.textContent=c.l; L.appendChild(d);
+  });
+  $('slotBox').classList.toggle('pulse',st.pulse==='slot'&&gState==='ask');
+  $('placePill').classList.toggle('pulse',st.pulse==='pill'&&gState==='ask');
+}
+function pandaRunsAway(){
+  const start={x:6,y:7}, an=spawnAnimal(start);
+  let p=pathOut(W.fences,start), i=1;
+  const walk=()=>{ if(i<p.length){ moveAnimal(an,p[i++]); animalTimers.push(setTimeout(walk,380)); } };
+  animalTimers.push(setTimeout(walk,700));
+  sFail(); showMsg(ANIMALS.panda.gone,'warn');
+}
+function gReveal(){
+  const st=G[gi];
+  gBusy=true; renderGuided();
+  const finish=()=>{ gBusy=false; gState='done'; renderGuided(); };
+  if(st.add){
+    const bl=st.add(); program.push(...bl); flashIds.clear(); bl.forEach(b=>flashIds.add(b.id)); renderProgram();
+    gLater(()=>{ flashIds.clear(); renderProgram(); },900);
+    const go=()=>playBlocks(bl,STEP_MS,finish);
+    if(st.chat) typeChat(go); else gLater(go,500);
+  }else if(st.panda){
+    built=true; releaseAnimals(); gLater(finish,1600);
+  }else if(st.trap){
+    // та сама програма, але без одного блоку
+    const variant=lk(lessonProgram()).filter(b=>st.trap==='slot'?b.type!=='slot':!(b.type==='pl'&&b.on));
+    W.silent=true; resetWorld(); W.silent=false; hideMsg();
+    program=variant; renderProgram();
+    showMsg(st.trap==='slot'?'Прибрали блок: постав паркан у слот 1':'Прибрали блок: розмістити на ходу УВІМКН.','info');
+    gLater(()=>typeChat(()=>playBlocks(variant,320,()=>{ pandaRunsAway(); gLater(finish,1800); })),900);
+  }
+}
+function showMemo(){
+  completed.add(0); renderProgress();
+  $('mTitle').textContent='📋 Схема: як агент будує загін';
+  $('mText').innerHTML=`<div class="memo">
+    <div class="mc"><div class="mh">① Покликати агента</div><div class="mb ev">при команді чату "1"</div><div class="mb">агент - телепортуватися до гравця</div></div>
+    <div class="mc"><div class="mh">② Дати паркан</div><div class="mb">agent, постав блок або предмет паркан у слот 1</div></div>
+    <div class="mc"><div class="mh">③ Показати шлях</div><div class="mb">розмістити на ходу УВІМКН.</div><div class="mt">4 сторони загону</div><div class="mb">розмістити на ходу ВИМКН.</div></div>
+    <div class="mc"><div class="mh">④ Випустити тваринку</div><div class="mt">Тварина в загоні — все вийшло! 💚</div></div>
+  </div>`;
+  $('mGo').textContent='До рівня 2 ▶'; $('mStay').classList.remove('hidden');
+  document.querySelector('.mbox').classList.add('wide');
+  modalGo=()=>loadLevel(1); $('modal').classList.remove('hidden');
+}
+$('gMain').onclick=()=>{
+  if(gBusy) return;
+  if(gState==='ask') gReveal();
+  else if(gi<G.length-1) gGo(gi+1);
+  else showMemo();
+};
+$('gBack').onclick=()=>{ if(gBusy) return; if(gState==='done') gGo(gi); else if(gi>0) gGo(gi-1); };
+$('gRestart').onclick=()=>{ if(!gBusy) gGo(0); };
 
 /* ================= старт ================= */
 loadLevel(0);
