@@ -91,6 +91,8 @@ button{font-family:inherit}
 .choice.cA{background:rgba(214,58,47,.88)}.choice.cB{background:rgba(31,111,209,.88)}.choice.cC{background:rgba(184,134,11,.92)}
 .choice{font-family:var(--mc);font-weight:800}
 .choice{pointer-events:auto;cursor:pointer}
+.choice.area{outline-width:2px;opacity:.85}
+.choice.area.no{opacity:.15}
 #gCards{position:absolute;right:16px;top:16px;bottom:16px;width:520px;display:flex;flex-direction:column;gap:14px;z-index:60;overflow:auto}
 #gCards .ghd{font-size:16px;color:#ffe680;text-shadow:2px 2px 0 #000}
 .gcard{position:relative;display:flex;align-items:center;gap:14px;padding:12px 14px;background:#c6c6c6;border:4px solid #000;
@@ -285,7 +287,8 @@ button{font-family:inherit}
 .pill.on{background:#3c8527;box-shadow:inset 2px 2px 0 #6dc449,inset -2px -3px 0 #1d4d12}
 .pill.off{background:#6b6b6b;box-shadow:inset 2px 2px 0 #9a9a9a,inset -2px -3px 0 #3c3c3c}
 .row{flex:none;display:flex;align-items:center;gap:12px;height:62px}
-#chatBar{flex:1;height:62px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.62);border:3px solid rgba(0,0,0,.8);padding:0 14px;transition:background .2s}
+#runBtn{flex:none;width:290px}
+#chatBar{flex:1;min-width:0;height:62px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.62);border:3px solid rgba(0,0,0,.8);padding:0 14px;transition:background .2s}
 #chatBar.flash{background:rgba(60,133,39,.7)}
 #chatBar span{color:#bdbdbd;font-size:16px}
 #chatIn{flex:1;font-family:var(--pix);font-size:20px;font-weight:600;background:transparent;border:none;color:#fff;outline:none;text-shadow:2px 2px 0 #3f3f3f}
@@ -320,7 +323,7 @@ button{font-family:inherit}
 
   <div id="main">
     <div id="left">
-      <div id="palStrip"><div id="palInner"></div><div id="trashHint">🗑 Відпусти, щоб видалити</div></div>
+      <div id="palStrip"><div id="palInner"></div><div id="trashHint">🗑 Відпустіть, щоб видалити</div></div>
       <div id="lrow">
         <div id="sampleCol" class="gui">
           <div class="ghead">📋 Зразок</div>
@@ -329,7 +332,7 @@ button{font-family:inherit}
         <div id="ws">
           <div id="wsScroll"><div id="wsInner"></div></div>
           <div id="gCards" class="hidden"></div>
-          <div id="wsHelp">Перетягуй блоки. Наведи мишу на блок: ↑ ↓ ✕</div>
+          <div id="wsHelp">Перетягуйте блоки. Наведіть мишу на блок: ↑ ↓ ✕</div>
         </div>
       </div>
     </div>
@@ -359,7 +362,7 @@ button{font-family:inherit}
         </div>
       </div>
       <div class="row" id="chatRow">
-        <div id="chatBar"><span>Чат:</span><input id="chatIn" type="text" placeholder="напиши 1 і натисни Enter" autocomplete="off" maxlength="20"></div>
+        <div id="chatBar"><span>Чат:</span><input id="chatIn" type="text" placeholder="напишіть 1 і натисніть Enter" autocomplete="off" maxlength="20"></div>
         <button id="runBtn" class="mcb green big">▶ Запустити</button>
       </div>
       <div class="row" id="btnRow">
@@ -393,6 +396,8 @@ function fit(){
   stage.style.transform=`translate(${ox}px,${oy}px) scale(${S})`;
 }
 addEventListener('resize',fit); fit();
+// сцена ніколи не прокручується (інакше широкий елемент може зсунути весь екран)
+stage.addEventListener('scroll',()=>{ stage.scrollLeft=0; stage.scrollTop=0; });
 
 /* ================= константи ================= */
 const N=15, CELL=40;
@@ -401,7 +406,7 @@ const HOME={x:8,y:8};               // де стоїть агент після "
 const R=8, NO=18, ND=8, NWID=32;    // геометрія блоків: радіус, зсув зубчика, глибина, ширина
 const CAP=18, AW=22, BH=28;         // "шапка" події, ліва стінка С-блока, нижня планка
 const EX=56, EY=30;                 // позиція блоку події в робочій області
-const STEP_MS=850;                  // фіксована повільна швидкість агента
+const STEP_MS=450;                  // фіксована швидкість агента
 const COL={agent:{f:'#D83B01',s:'#9c2a00'}, ev:{f:'#0078D7',s:'#00508f'}};
 const DIRS={
   fwd:  {l:'вперед',  dx:0, dy:-1, a:'⬆'},
@@ -515,7 +520,7 @@ const B={
 };
 function lessonProgram(){
   return [B.tp(),B.slot(1,1),B.mv('fwd',3),B.mv('right',1),B.pl(true),
-          B.mv('left',4),B.mv('back',5),B.mv('right',5),B.mv('fwd',6),B.pl(false)];
+          B.mv('left',4),B.mv('back',5),B.mv('right',5),B.mv('fwd',5),B.pl(false)];
 }
 function newOf(t){ return t==='tp'?B.tp():t==='slot'?B.slot(1,1):t==='mv'?B.mv('fwd',1):B.pl(true); }
 const SAMPLE=lessonProgram();
@@ -549,17 +554,17 @@ const LV=[
   {name:'Загін для коней', animal:'horse', count:2, btn:'🐴 Випустити коней', sample:false, locked:true,
    palette:()=>[], outline:{x0:2,y0:5,x1:9,y1:10},
    title:'🎯 Коням потрібен більший загін — як білий пунктир.',
-   steps:['Зміни числа в блоках, які світяться.','Запусти програму.','Випусти коней.'],
+   steps:['Змініть числа в блоках, які світяться.','Запустіть програму.','Випустіть коней.'],
    check:'✅ Паркан стоїть точно на білому пунктирі.'},
-  {name:'Знайди помилку', animal:'sheep', count:2, btn:'🐑 Випустити овець', sample:true,
-   palette:()=>[[],['pl','tp','mv'],['slot','pl','tp']][breakIdx],
-   title:'🎯 У програмі помилка. Знайди і виправ її.',
-   steps:['Запусти програму і подивись, що зробить агент.','Порівняй із програмою з рівня 1.','Виправ і запусти ще раз.'],
+  {name:'Знайдіть помилку', animal:'sheep', count:2, btn:'🐑 Випустити овець', sample:false, locked:true,
+   palette:()=>[],
+   title:'🎯 Агент помилився — у загоні дірка! Де помилка?',
+   steps:['Запустіть програму і подивіться на загін.','Яке число в блоках, що світяться, неправильне?','Виправте число і запустіть ще раз.'],
    check:'✅ Вівці залишились у загоні.'},
-  {name:'Побудуй сам', animal:'cow', count:2, btn:'🐄 Випустити корів', sample:false,
+  {name:'Командуємо разом', animal:'cow', count:2, btn:'🐄 Випустити корів', sample:false,
    palette:()=>['slot','mv','pl'], outline:{x0:7,y0:3,x1:11,y1:7},
-   title:'🎯 Збери програму, щоб агент побудував загін по білому пунктиру.',
-   steps:['Порахуй клітинки на кожній стороні.','Збери блоки і запусти програму.','Випусти корів.'],
+   title:'🎯 Складіть програму, щоб агент збудував загін по білому пунктиру.',
+   steps:['Порахуйте клітинки на кожній стороні.','Додайте блоки і запустіть програму.','Випустіть корів.'],
    check:'✅ Паркан точно на пунктирі, корови в загоні.'}
 ];
 
@@ -571,10 +576,9 @@ function initialProgram(){
     return p;
   }
   if(level===2){
-    const p=lessonProgram();
-    if(breakIdx===0){ p[5].n=3; breakHintId=p[5].id; }          // а) неправильне число → дірка
-    else if(breakIdx===1){ breakHintId=p[5].id; p.splice(4,1); } // б) немає "розмістити на ходу УВІМКН."
-    else { breakHintId=p[4].id; p.splice(1,1); }                 // в) немає паркану у слоті 1
+    const p=lessonProgram(); p.forEach(b=>b.lock=true);
+    p[5].n=3; breakHintId=p[5].id;               // "ліворуч 3" замість 4 → дірка
+    p[5].edit=['n']; p[8].edit=['n'];            // світяться й змінюються: "ліворуч" і "вперед"
     return p;
   }
   const t=B.tp(); t.fixed=true; return [t];
@@ -722,7 +726,7 @@ function shakeBlock(id){
   scrollToEl(e);
 }
 function programChanged(){
-  if(run){ stopRun(); showMsg('Програму змінено. Запусти ще раз.','info'); }
+  if(run){ stopRun(); showMsg('Програму змінено. Запустіть ще раз.','info'); }
   answerMode=false; hintIds.clear();
   // знімаємо червону позначку з блоків, які вже збігаються зі зразком
   [...flagged].forEach(id=>{ const i=program.findIndex(b=>b.id===id); if(i<0||same(program[i],SAMPLE[i])) flagged.delete(id); });
@@ -974,7 +978,7 @@ function renderWorld(){
     body.classList.remove('tp'); void body.offsetWidth; body.classList.add('tp');
     W.teleported=false;
   }else{
-    ag.style.transition='left 600ms ease, top 600ms ease, transform .3s';
+    ag.style.transition='left 380ms ease, top 380ms ease, transform .3s';
     ag.style.left=W.agent.x*CELL+'px'; ag.style.top=W.agent.y*CELL+'px';
   }
   const pl=$('player'); pl.style.left=PLAYER.x*CELL+'px'; pl.style.top=PLAYER.y*CELL+'px';
@@ -1016,7 +1020,7 @@ function compile(){
 }
 function startRun(){
   closePopup(); stopRun(); resetWorld(); hideMsg();
-  if(!program.length){ showMsg('Додай блоки в програму.','warn'); return false; }
+  if(!program.length){ showMsg('Додайте блоки в програму.','warn'); return false; }
   if(LV[level].marks){
     const i=matchedPrefix();
     if(i<program.length||program.length<SAMPLE.length){
@@ -1078,17 +1082,17 @@ function finishRun(){
   if(level===2&&analyze(W.fences).kind!=='closed'){
     if(W.warned) showMsg('В інвентарі агента порожньо 🤔','warn');
     else if(!W.fences.size) showMsg('Агент іде, але не ставить паркан 🤔','warn');
-    else showMsg(`Одна сторона коротша 🤔 Натисни "${btn}" і перевір.`,'warn');
+    else showMsg(`Одна сторона коротша 🤔 Натисніть "${btn}" і перевірте.`,'warn');
   }
   else if(W.warned) showMsg('В інвентарі агента немає паркану! 🤔','err');
   else if(!W.fences.size) showMsg('Агент пройшов, але не поставив паркан 🤔','warn');
-  else showMsg(`Агент закінчив! Тепер натисни "${btn}".`,'info');
+  else showMsg(`Агент закінчив! Тепер натисніть "${btn}".`,'info');
   if(wasAns) animalTimers.push(setTimeout(releaseAnimals,1000));
 }
 function updateButtons(){
   const rb=$('runBtn');
   rb.disabled=!!run||typing;
-  rb.textContent=run?'⏳ Агент працює…':'▶ Запустити';
+  rb.textContent=run?'⏳ Працює…':'▶ Запустити';
   const ab=$('animalBtn');
   ab.textContent=LV[level].btn;
   ab.disabled=!built||!!run;
@@ -1096,7 +1100,7 @@ function updateButtons(){
 function submitChat(v){
   v=v.trim();
   if(v==='1'){ $('chatIn').value=''; startRun(); }
-  else if(v==='') showMsg('Напиши в чат 1 і натисни Enter.','info');
+  else if(v==='') showMsg('Напишіть у чат 1 і натисніть Enter.','info');
   else showMsg(`Програма запускається командою "1". У чаті: "${esc(v)}".`,'warn');
 }
 $('chatIn').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!run) submitChat(e.target.value); });
@@ -1273,7 +1277,7 @@ function releaseAnimals(){
     const cells=startCells(a.pen,a.start,LV[level].count);
     cells.forEach(c=>spawnAnimal(c));
     let win=true, type='ok', html=A.ok;
-    if(level===1&&!exactOutline(a)){ win=false; type='warn'; html='Загін закритий, але не по пунктиру. Перевір числа 🤔'; }
+    if(level===1&&!exactOutline(a)){ win=false; type='warn'; html='Загін закритий, але не по пунктиру. Перевірте числа 🤔'; }
     if(level===3){
       if(!exactOutline(a)){ win=false; type='warn'; html='Загін закритий, але не по пунктиру 🤔'; }
       else if(a.extras.length){
@@ -1332,18 +1336,13 @@ function hideModal(){ $('modal').classList.add('hidden'); modalGo=null; }
 $('mGo').onclick=()=>{ const g=modalGo; hideModal(); if(g) g(); };
 $('mStay').onclick=hideModal;
 function levelWon(){
-  if(level===2&&breakIdx<2){
-    showModal('✔ Поломку виправлено!',`Поломка ${breakIdx+1} з 3 готова. Шукай наступну!`,'Наступна поломка →',
-      ()=>{ breakIdx++; loadLevel(2,true); },true);
-    return;
-  }
   completed.add(level); renderProgress();
   if(level===3){
     showModal('🏆 Ферму збудовано!','Усі тварини в безпеці','Грати знову',
       ()=>{ completed.clear(); breakIdx=0; loadLevel(0); },true);
     return;
   }
-  showModal('⭐ Рівень пройдено!','Молодець! Готовий до наступного рівня?','Далі ▶',()=>loadLevel(level+1),true);
+  showModal('⭐ Рівень пройдено!','Молодці! Готові до наступного рівня?','Далі ▶',()=>loadLevel(level+1),true);
 }
 
 /* ================= рівні ================= */
@@ -1363,7 +1362,7 @@ function renderTask(){
   $('tTitle').textContent=L.title;
   $('tSteps').innerHTML=L.steps.map((s,i)=>`<div class="step"><b>${i+1}</b><span>${esc(s)}</span></div>`).join('');
   $('tCheck').textContent=L.check;
-  $('tBadge').textContent=level===2?`Поломка ${breakIdx+1} з 3`:'';
+  $('tBadge').textContent='';
   $('prevBtn').disabled=level===0; $('nextBtn').disabled=level===LV.length-1;
 }
 function loadLevel(i,keepBreak){
@@ -1378,7 +1377,7 @@ function loadLevel(i,keepBreak){
   gStop();
   ['tTitle','tSteps','tCheck','hintBtn','chatRow','btnRow','answerBtn'].forEach(id=>$(id).classList.toggle('hidden',!!L.guided));
   ['gBox','gCtl'].forEach(id=>$(id).classList.toggle('hidden',!L.guided));
-  if(!L.guided) $('gCards').classList.add('hidden');
+  if(!L.guided){ $('gCards').classList.add('hidden'); $('choiceL').innerHTML=''; $('slotBox').classList.remove('pulse'); $('placePill').classList.remove('pulse'); }
   renderTask(); renderProgress();
   resetWorld(); hideMsg(); renderOutline();
   renderPalette(); renderProgram();
@@ -1399,12 +1398,9 @@ $('hintBtn').onclick=()=>{
     else text='💡 Знайди блок зі стрілкою 👉 і додай його.';
     const e=sampleEls[i]; if(e){ e.classList.remove('pulse'); void e.offsetWidth; e.classList.add('pulse'); }
   }else if(level===1){
-    text='💡 Пунктир ширший на 2 клітинки. Додай по 2 у блоках, що світяться.';
+    text='💡 Пунктир ширший на 2 клітинки. Додайте по 2 у блоках, що світяться.';
   }else if(level===2){
-    if(program.some(b=>b.id===breakHintId)) hintIds.add(breakHintId);
-    text=['💡 Порівняй числа в цьому блоці зі зразком.',
-          '💡 Перед цим блоком чогось не вистачає.',
-          '💡 Агент хоче будувати. Що має бути в слоті 1?'][breakIdx];
+    text='💡 Порівняйте верхню і нижню сторони. Скільки в них блоків?';
   }else{
     text=hintStep===0?'💡 Спершу паркан у слот 1 і розміщення на ходу УВІМКН.':'💡 Кожна сторона — 4 кроки.';
     hintStep=Math.min(1,hintStep+1);
@@ -1418,7 +1414,7 @@ $('answerBtn').onclick=()=>{
   else if(level===1){
     const p=initialProgram(); p[5].n=6; p[7].n=7; flashIds.add(p[5].id); flashIds.add(p[7].id); program=p;
   }else if(level===2){
-    const p=lessonProgram(); flashIds.add([p[5].id,p[4].id,p[1].id][breakIdx]); program=p;
+    const p=initialProgram(); p[5].n=4; flashIds.add(p[5].id); program=p;
   }else{
     const t=B.tp(); t.fixed=true;
     const p=[t,B.slot(1,1),B.mv('fwd',1),B.pl(true),B.mv('fwd',4),B.mv('right',4),B.mv('back',4),B.mv('left',4),B.pl(false)];
@@ -1468,12 +1464,14 @@ const G=[
    a:'Б! Рівно 5 клітинок униз.'},
   {stage:2, kind:'opt', add:()=>[B.mv('right',5)],
    q:'Агент піде праворуч на 5. Яку сторону загону він збудує?',
-   opts:['Верхню','Нижню','Ліву'], ok:1,
+   sub:'Варіанти позначені на карті кольорами.',
+   opts:['Праву','Нижню','Ліву'], ok:1,
+   areas:[[[9,6],[9,7],[9,8],[9,9]],[[5,10],[6,10],[7,10],[8,10]],[[4,6],[4,7],[4,8],[4,9]]],
    a:'Нижню! Залишилась остання сторона.'},
-  {stage:2, kind:'opt', add:()=>[B.mv('fwd',6)],
-   q:'Агент піде вперед на 6. Загін замкнеться?',
+  {stage:2, kind:'opt', add:()=>[B.mv('fwd',5)],
+   q:'Агент піде вперед на 5. Загін замкнеться?',
    opts:['👍 Так','👎 Ні'], ok:0,
-   a:'Так, загін замкнувся! А один блок вийшов зайвий — бачите де?'},
+   a:'Так! Остання сторона готова — загін замкнувся.'},
   {stage:2, kind:'cmd', pulse:'pill',
    q:'Загін готовий. Яка команда зупинить будування?',
    cards:[{b:()=>B.pl(true), why:'Розміщення вже увімкнене!'},
@@ -1571,6 +1569,16 @@ function renderGuided(){
     d.className='cellE choice c'+'ABC'[i]+(gState==='done'?(c.ok?' ok':' no'):'');
     d.style.left=c.x*CELL+'px'; d.style.top=c.y*CELL+'px'; d.textContent=LETTERS[i];
     d.onclick=()=>gPick(i); L.appendChild(d);
+  });
+  if(st.areas) st.areas.forEach((cells,i)=>{
+    const ok=i===st.ok, mid=cells[Math.floor((cells.length-1)/2)];
+    cells.forEach(([x,y])=>{
+      const d=document.createElement('div');
+      d.className='cellE choice area c'+'ABC'[i]+(gState==='done'?(ok?' ok':' no'):'');
+      d.style.left=x*CELL+'px'; d.style.top=y*CELL+'px';
+      if(x===mid[0]&&y===mid[1]) d.textContent=LETTERS[i];
+      d.onclick=()=>gPick(i); L.appendChild(d);
+    });
   });
   renderCards();
   $('slotBox').classList.toggle('pulse',st.pulse==='slot'&&gState==='ask');
