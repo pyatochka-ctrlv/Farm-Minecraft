@@ -3,133 +3,185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Агент будує загін</title>
+<title>Магічна ферма: агент будує загін</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiny5&display=swap" rel="stylesheet">
 <style>
+:root{
+  --pix:"Tiny5","Segoe UI",Arial,sans-serif;
+  --mc:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif}
-#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#262626;color:#fff;
-  display:flex;flex-direction:column;font-size:22px;user-select:none;-webkit-user-select:none;overflow:hidden}
+html,body{margin:0;height:100%;overflow:hidden;background:#1a120b}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;color:#fff;display:flex;flex-direction:column;
+  font-family:var(--pix);font-size:24px;font-synthesis:none;user-select:none;-webkit-user-select:none;overflow:hidden;
+  background-color:#3b2a1c;background-size:96px 96px;image-rendering:pixelated}
 button{font-family:inherit}
-.btn{font-size:22px;font-weight:700;padding:10px 20px;border:none;border-radius:12px;background:#4b4f56;color:#fff;cursor:pointer;
-  box-shadow:0 4px 0 rgba(0,0,0,.4);white-space:nowrap}
-.btn:hover{filter:brightness(1.15)}
-.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
-.btn:disabled{opacity:.35;cursor:default;filter:none;transform:none}
-.btn.green{background:#2e8b3e}.btn.blue{background:#1f6fd1}.btn.orange{background:#cf6417}
-.btn.purple{background:#7b4bc4}.btn.light{background:#ececec;color:#222}.btn.red{background:#b8322b}
 .hidden{display:none!important}
 
+/* ---------- кнопки в стилі меню Minecraft ---------- */
+.mcb{font-family:var(--pix);font-size:26px;font-weight:600;color:#fff;text-shadow:3px 3px 0 #3f3f3f;background:#7a7a7a;
+  border:3px solid #000;border-radius:0;box-shadow:inset 3px 3px 0 #b9b9b9,inset -3px -4px 0 #494949;
+  padding:8px 22px 10px;cursor:pointer;white-space:nowrap;line-height:1.1}
+.mcb:hover:not(:disabled){color:#ffffa0;background:#878787}
+.mcb:active:not(:disabled){box-shadow:inset 3px 4px 0 #494949,inset -3px -3px 0 #a5a5a5;transform:translateY(2px)}
+.mcb:disabled{color:#a8a8a8;text-shadow:2px 2px 0 #2c2c2c;background:#555;box-shadow:inset 3px 3px 0 #6c6c6c,inset -3px -4px 0 #363636;cursor:default}
+.mcb.green{background:#3c8527;box-shadow:inset 3px 3px 0 #6dc449,inset -3px -4px 0 #1d4d12}
+.mcb.green:hover:not(:disabled){background:#479a30}
+.mcb.green:active:not(:disabled){box-shadow:inset 3px 4px 0 #1d4d12,inset -3px -3px 0 #5fb83a}
+.mcb.green:disabled{background:#3f5a36;box-shadow:inset 3px 3px 0 #587a4c,inset -3px -4px 0 #263a20}
+.mcb.small{font-size:20px;padding:5px 12px 7px}
+.mcb.big{font-size:32px;padding:10px 26px 12px}
+.mcb.armed{background:#a33a2a;box-shadow:inset 3px 3px 0 #d8705e,inset -3px -4px 0 #5a1a10}
+
+/* ---------- панелі як GUI Minecraft ---------- */
+.gui{background:#c6c6c6;border:4px solid #000;box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #555;color:#3f3f3f}
+.ghead{font-size:28px;color:#3f3f3f;padding:8px 14px 4px}
+
 /* ---------- верхня панель ---------- */
-#topbar{height:84px;flex:none;display:flex;align-items:center;gap:14px;padding:0 20px;background:#1b1b1b;border-bottom:3px solid #0b0b0b}
-.brand{font-size:24px;font-weight:800;color:#9be38a;margin-right:8px;white-space:nowrap}
-#lvlTitle{font-size:28px;font-weight:800;min-width:500px;text-align:center;line-height:1.1}
-#lvlTitle small{display:block;font-size:22px;color:#bbb;font-weight:600}
+#topbar{height:76px;flex:none;display:flex;align-items:center;gap:16px;padding:0 14px;background:#2b2b2b;
+  border-bottom:4px solid #000;box-shadow:inset 0 -4px 0 #555,inset 0 4px 0 #6a6a6a}
+.brand{font-size:30px;font-weight:700;color:#7fe05a;text-shadow:3px 3px 0 #1b4a10;white-space:nowrap}
+#lvlTitle{font-size:30px;font-weight:700;text-shadow:3px 3px 0 #3f3f3f;white-space:nowrap;margin-left:10px}
+#lvlTitle span{color:#ffd84a}
+#prog{display:flex;gap:10px;margin-left:16px}
+.em{width:46px;height:46px;cursor:pointer;filter:grayscale(1) brightness(.55);transition:filter .3s,transform .3s}
+.em svg{width:100%;height:100%;display:block}
+.em.cur{filter:grayscale(.2) brightness(.95);transform:translateY(-3px);animation:embob 1s ease-in-out infinite alternate}
+.em.done{filter:drop-shadow(0 0 8px #41ff8a) drop-shadow(0 0 3px #b8ffd3)}
+.em.done.cur{filter:drop-shadow(0 0 10px #41ff8a)}
+@keyframes embob{from{transform:translateY(-4px)}to{transform:translateY(2px)}}
 .spacer{flex:1}
+#answerBtn{margin-left:22px;opacity:.75}
 
-#main{flex:1;display:flex;min-height:0}
+/* ---------- завдання: дерев'яна табличка з пергаментом ---------- */
+#taskWrap{flex:none;margin:10px 12px 0;padding:8px;border:4px solid #000;
+  background:repeating-linear-gradient(180deg,#a5733f 0 20px,#8c5e30 20px 24px,#7a4f26 24px 26px);
+  box-shadow:inset 3px 3px 0 #c89458,inset -3px -3px 0 #4e3116}
+#task{display:flex;gap:18px;background:#f4e4b6;color:#2c1d0c;padding:10px 20px 12px;border:4px solid #5b3a18;
+  box-shadow:inset 0 0 0 3px #e2cb8e;min-height:168px}
+#tMain{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+#tTitle{font-size:34px;font-weight:700;line-height:1.15}
+#tSteps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{display:flex;gap:10px;align-items:flex-start;font-size:28px;line-height:1.2;font-weight:500}
+.step b{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#7a4f26;color:#fff;
+  border:3px solid #2c1d0c;font-size:24px;margin-top:-2px}
+#tCheck{font-size:28px;font-weight:600;color:#245c12;line-height:1.2}
+#tSide{flex:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px}
+#tBadge{font-size:26px;font-weight:700;background:#7a4f26;color:#fff;padding:6px 14px;border:3px solid #2c1d0c}
+#tBadge:empty{display:none}
 
-/* ---------- палітра ---------- */
-#palette{width:384px;flex:none;display:flex;flex-direction:column;background:#303236;border-right:3px solid #161616;position:relative}
-#cats{flex:none;padding:10px;display:flex;flex-direction:column;gap:6px;background:#26282c;border-bottom:2px solid #1a1a1a}
-.cat{display:flex;align-items:center;gap:14px;padding:9px 14px;border-radius:10px;font-size:24px;font-weight:700;cursor:pointer;color:#eee;border-left:8px solid var(--c)}
-.cat .sq{width:30px;height:30px;border-radius:7px;background:var(--c);display:flex;align-items:center;justify-content:center;font-size:18px}
-.cat.sel{background:var(--c);color:#fff}
-.cat.sel .sq{background:rgba(255,255,255,.25)}
-.cat:hover:not(.sel){background:#36393e}
-#fly{flex:1;position:relative;overflow-y:auto;overflow-x:hidden;background:#3a3c41}
-#flyInner{position:relative;min-height:100%}
-#flyHelp{position:absolute;left:18px;right:18px;color:#c8c8c8;font-size:22px;line-height:1.3}
-#trashHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;
-  background:rgba(120,25,25,.85);font-size:26px;font-weight:800;z-index:40;text-align:center;padding:20px}
-#trashHint .big{font-size:64px}
-#palette.trash #trashHint{display:flex}
-
-/* ---------- робоча область ---------- */
-#ws{width:768px;flex:none;position:relative;background:#333;border-right:3px solid #161616}
+/* ---------- основна частина ---------- */
+#main{flex:1;display:flex;gap:12px;padding:10px 12px 12px;min-height:0}
+#left{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+#lrow{flex:1;display:flex;gap:12px;min-height:0}
+#sampleCol{width:500px;flex:none;display:flex;flex-direction:column;min-height:0}
+#sampleArea{flex:1;margin:0 10px 10px;position:relative;overflow:hidden;background-color:#353535;border:3px solid #222;
+  background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px}
+#sampleInner{position:absolute;left:0;top:0;transform-origin:0 0}
+#ws{min-width:0}
+#palStrip{flex:none;position:relative;background:#2e3034;border:4px solid #000;box-shadow:inset 3px 3px 0 #4a4d52,inset -3px -3px 0 #1a1b1d}
+#palInner{position:relative}
+#trashHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:14px;background:rgba(140,25,25,.92);
+  font-size:30px;font-weight:700;z-index:40}
+#palStrip.trash #trashHint{display:flex}
+#ws{flex:1;min-width:0;position:relative;background:#333;border:4px solid #000;min-height:0}
 #wsScroll{position:absolute;inset:0;overflow:auto}
 #wsInner{position:relative;min-width:100%;min-height:100%;
   background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
   background-size:32px 32px}
-#clearBtn{position:absolute;right:18px;top:14px;z-index:60}
-#clearBtn.armed{background:#b8322b}
-#wsHelp{position:absolute;left:0;right:0;bottom:0;padding:10px 18px;color:#bdbdbd;font-size:22px;pointer-events:none;z-index:55;
-  background:linear-gradient(transparent,rgba(30,30,30,.92) 35%)}
-#marker{position:absolute;height:8px;width:280px;border-radius:4px;background:#fff;box-shadow:0 0 14px #fff;display:none;z-index:50}
+#wsHelp{font-family:var(--mc);position:absolute;right:12px;bottom:8px;padding:4px 10px;color:#bdbdbd;font-size:20px;pointer-events:none;z-index:55;background:rgba(30,30,30,.75)}
+#marker{position:absolute;height:8px;width:280px;background:#fff;box-shadow:0 0 14px #fff;display:none;z-index:50}
 
-/* ---------- блоки ---------- */
+/* ---------- блоки MakeCode ---------- */
 .blk{position:absolute;cursor:grab;touch-action:none}
+.blk.locked,.blk.fixed{cursor:default}
 .blk .bsvg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
 .blk path{stroke-width:1.5;stroke-linejoin:round}
-.bc{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:8px 9px;padding:15px 16px 11px 16px;min-height:56px;
-  max-width:620px;width:max-content;font-size:20px;font-weight:600;color:#fff}
-.evh{position:absolute;left:0;padding:12px 16px 12px 16px;min-height:54px}
-.pal .bc{font-size:18px;max-width:340px;gap:7px 8px}
+.bc{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:7px 9px;padding:15px 16px 11px 16px;min-height:54px;
+  max-width:600px;width:max-content;font-family:var(--mc);font-size:20px;font-weight:600;color:#fff}
+.evh{position:absolute;left:0;padding:12px 16px;min-height:52px}
+#wsInner .bc{font-size:19px;max-width:470px}
+.pal .bc{font-size:16px;max-width:640px;min-height:46px;padding:13px 13px 9px;gap:6px 7px}
+.pal .fnum,.pal .fstr{min-width:38px;padding:2px 10px}
+.pal .fitem svg{width:22px;height:22px}
+.pal .ftoggle .tk{width:22px;height:22px}
+.pal .ftoggle .tl{font-size:15px}
 .bt{white-space:nowrap;text-shadow:0 1px 0 rgba(0,0,0,.25)}
 .field{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;font-weight:700}
 .field.ro{cursor:inherit}
 .fnum,.fstr{background:#fff;color:#262626;border-radius:999px;min-width:46px;justify-content:center;padding:3px 14px}
 .fdrop{background:rgba(0,0,0,.25);border:1.5px solid rgba(0,0,0,.3);border-radius:999px;padding:3px 10px 3px 14px;color:#fff}
-.caret{font-size:15px;opacity:.9}
+.caret{font-size:14px;opacity:.9}
 .fitem{background:#fff;color:#333;border-radius:8px;padding:2px 10px 2px 6px}
 .fitem svg{width:26px;height:26px;display:block}
 .ftoggle{background:#7d4fc9;border-radius:999px;padding:3px;gap:4px;border:1.5px solid #5a34a0}
 .ftoggle .tk{width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.4)}
-.ftoggle .tl{border-radius:999px;padding:2px 12px;font-size:18px;font-weight:800;color:#fff}
+.ftoggle .tl{border-radius:999px;padding:2px 12px;font-size:17px;font-weight:800;color:#fff}
 .ftoggle.on .tl{background:#3cb043}
 .ftoggle.off .tl{background:#9a9a9a}
-.blk.ed .field:hover{box-shadow:0 0 0 3px rgba(255,255,255,.6)}
+.blk .field:not(.ro):hover{box-shadow:0 0 0 3px rgba(255,255,255,.65)}
 .blk.run .bsvg path{stroke:#ffe31a;stroke-width:6}
 .blk.run .bsvg{filter:drop-shadow(0 0 10px #ffe31a)}
+.blk.glow .bsvg path{stroke:#fff;stroke-width:5;animation:glow 1s ease-in-out infinite alternate}
+.blk.glow .fnum{box-shadow:0 0 0 4px #ffe31a;animation:numglow 1s ease-in-out infinite alternate}
+@keyframes glow{from{stroke:#fff6a0}to{stroke:#ffffff}}
+@keyframes numglow{from{box-shadow:0 0 0 3px #ffe31a}to{box-shadow:0 0 0 6px #ffe31a}}
 .blk.hint .bsvg path{stroke:#fff;stroke-width:5;stroke-dasharray:12 8;animation:dash 1s linear infinite}
-.blk.hint::before{content:"💡";position:absolute;left:-46px;top:6px;font-size:32px;animation:bob .7s ease-in-out infinite alternate}
+.blk.hint::before{content:"💡";position:absolute;left:-44px;top:6px;font-size:32px;animation:bob .7s ease-in-out infinite alternate}
+.blk.wrong .bsvg path{stroke:#ff3030;stroke-width:5}
 .blk.flash .bsvg path{stroke:#7CFC00;stroke-width:5}
 .blk.flash .bsvg{filter:drop-shadow(0 0 8px #7CFC00)}
+.blk.shake{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-12px) rotate(-2deg)}40%{transform:translateX(10px) rotate(2deg)}60%{transform:translateX(-7px)}80%{transform:translateX(5px)}}
 @keyframes dash{to{stroke-dashoffset:-40}}
 @keyframes bob{from{transform:translateY(-4px)}to{transform:translateY(4px)}}
 .blk.dsrc{opacity:.28}
+.blk.sdone{opacity:.62}
+.blk.snext .bsvg path{stroke:#fff;stroke-width:5;animation:glow .8s ease-in-out infinite alternate}
+.blk.snext .bsvg{filter:drop-shadow(0 0 10px #fff)}
+.blk.snext.pulse{animation:shake .6s ease 2}
+.smark{position:absolute;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;font-family:var(--mc)}
+.smark.ok{background:#3c8527;color:#fff;border:3px solid #102a08}
+.smark.nx{font-size:30px;animation:bob .6s ease-in-out infinite alternate}
 .ghost{position:absolute;z-index:1000;pointer-events:none;opacity:.93;filter:drop-shadow(0 10px 14px rgba(0,0,0,.55))}
 .btools{position:absolute;left:100%;top:4px;display:none;padding-left:10px;gap:6px;z-index:20}
 .blk:hover .btools{display:flex}
 .ghost .btools{display:none!important}
-.btools button{width:42px;height:42px;border-radius:10px;border:none;background:#5a5a5a;color:#fff;font-size:22px;cursor:pointer;font-weight:800;box-shadow:0 3px 0 rgba(0,0,0,.4)}
-.btools button:hover{filter:brightness(1.25)}
-.btools button.del{background:#b8322b}
+.btools button{width:42px;height:42px;border:3px solid #000;background:#7a7a7a;color:#fff;font-size:22px;cursor:pointer;font-weight:800;
+  box-shadow:inset 2px 2px 0 #b9b9b9,inset -2px -3px 0 #494949;font-family:var(--mc)}
+.btools button:hover{color:#ffffa0}
+.btools button.del{background:#a33a2a;box-shadow:inset 2px 2px 0 #d8705e,inset -2px -3px 0 #5a1a10}
 
 /* ---------- спливаючі редактори ---------- */
-.popup{position:absolute;z-index:900;background:#fafafa;color:#222;border-radius:16px;padding:14px;box-shadow:0 12px 30px rgba(0,0,0,.6);border:3px solid #D83B01}
+.popup{position:absolute;z-index:900;padding:14px}
 .numrow{display:flex;align-items:center;gap:14px;justify-content:center}
-.popup .big{width:76px;height:76px;border-radius:16px;border:none;font-size:46px;font-weight:800;cursor:pointer;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.35)}
-.popup .big.minus{background:#c0392b}.popup .big.plus{background:#2e8b3e}
-.popup .big:active{transform:translateY(3px)}
-.nval{font-size:56px;font-weight:800;min-width:80px;text-align:center}
-.quick{display:grid;grid-template-columns:repeat(5,52px);gap:8px;margin-top:12px;justify-content:center}
-.quick button{height:48px;border-radius:10px;border:2px solid #ccc;background:#fff;font-size:24px;font-weight:700;cursor:pointer}
-.quick button.cur{background:#ffd54a;border-color:#c79a00}
-.okb{display:block;width:100%;margin-top:12px;font-size:22px;font-weight:700;padding:8px;border-radius:10px;border:none;background:#444;color:#fff;cursor:pointer}
-.dropopt{display:flex;align-items:center;gap:14px;width:290px;padding:12px 16px;margin:4px 0;font-size:26px;font-weight:700;border-radius:12px;border:none;
-  background:#eee;cursor:pointer;text-align:left}
+.nval{font-size:58px;font-weight:700;min-width:90px;text-align:center;color:#3f3f3f}
+.quick{display:grid;grid-template-columns:repeat(5,56px);gap:8px;margin-top:12px;justify-content:center}
+.quick .mcb{padding:6px 0;font-size:26px}
+.quick .mcb.cur{background:#3c8527}
+.popup .okb{display:block;width:100%;margin-top:12px}
+.dropopt{display:flex !important;align-items:center;gap:14px;width:300px;margin:6px 0;text-align:left}
 .dropopt .ar{font-size:30px;width:40px;text-align:center}
-.dropopt.cur{background:#D83B01;color:#fff}
-.dropopt:hover:not(.cur){background:#ffe1d1}
+.dropopt.cur{background:#D83B01;box-shadow:inset 3px 3px 0 #ff8a55,inset -3px -4px 0 #7a2000}
 
 /* ---------- світ ---------- */
-#worldcol{flex:1;display:flex;flex-direction:column;padding:10px;gap:8px;min-width:0;background:#202326}
-#qbox{height:150px;flex:none;background:#1d3a5c;border-radius:14px;padding:8px 18px;border-left:10px solid #ffc83d;display:flex;flex-direction:column;justify-content:center}
-#qlabel{font-size:22px;color:#ffd970;font-weight:800}
-#qtext{font-size:28px;font-weight:800;line-height:1.2}
-#qsub{font-size:22px;color:#cfe3ff;margin-top:4px;line-height:1.2}
-#qsub.ans{color:#a6ff9e;font-weight:700}
-#worldwrap{flex:none;display:flex;gap:10px;height:600px}
-#world{position:relative;width:600px;height:600px;flex:none;border-radius:4px;box-shadow:0 0 0 4px #14301a}
+#worldCol{width:784px;flex:none;display:flex;flex-direction:column;gap:8px}
+#worldRow{display:flex;gap:10px;flex:none}
+#worldFrame{flex:none;padding:12px;border:4px solid #000;
+  background:repeating-linear-gradient(90deg,#a5733f 0 30px,#8c5e30 30px 34px),#a5733f;
+  box-shadow:inset 3px 3px 0 #c89458,inset -3px -3px 0 #4e3116}
+#world{position:relative;width:600px;height:600px;border:3px solid #2d1d0d;box-sizing:content-box;margin:-3px}
 #grass{position:absolute;left:0;top:0;width:600px;height:600px;image-rendering:pixelated}
-#gridL{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.14) 1px,transparent 1px);background-size:40px 40px}
+#gridL{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.13) 1px,transparent 1px);background-size:40px 40px}
 .layer{position:absolute;inset:0;pointer-events:none}
 .cellE{position:absolute;width:40px;height:40px}
 .ol{background:rgba(255,255,255,.3);outline:3px dashed rgba(255,255,255,.95);outline-offset:-5px}
 .fence svg{display:block;width:40px;height:40px}
 .fence.pop{animation:pop .35s ease-out}
 @keyframes pop{0%{transform:scale(.2)}70%{transform:scale(1.18)}100%{transform:scale(1)}}
-.mark{border-radius:5px;z-index:2}
+.mark{z-index:2}
 .mark.red{background:rgba(255,40,40,.5);box-shadow:inset 0 0 0 4px #ff2d2d,0 0 18px #ff2d2d;animation:pulse .7s ease-in-out infinite alternate}
 .mark.yel{background:rgba(255,220,0,.45);box-shadow:inset 0 0 0 4px #ffd400,0 0 16px #ffd400;animation:pulse .7s ease-in-out infinite alternate}
 @keyframes pulse{from{opacity:.5}to{opacity:1}}
@@ -139,110 +191,125 @@ button{font-family:inherit}
 #player.under{transform:translate(-24%,16%) scale(.7)}
 #agent{z-index:7}
 #agent.over{transform:translate(14%,-8%) scale(.92)}
-#panda{z-index:8}
-#panda.drop .body{animation:drop .5s ease-out}
+.animal{z-index:8;transition:left .45s ease,top .45s ease}
+.animal.drop .body{animation:drop .5s ease-out}
 @keyframes drop{0%{transform:translateY(-50px) scale(.5);opacity:0}60%{transform:translateY(4px) scale(1.1);opacity:1}100%{transform:none}}
 #agent .body.tp{animation:tp .5s ease-out}
 @keyframes tp{0%{transform:scale(0) rotate(-120deg);opacity:0;filter:brightness(3)}100%{transform:none;opacity:1}}
-#bubble{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);background:#fff;border-radius:7px;padding:2px 3px;box-shadow:0 2px 0 rgba(0,0,0,.45);display:none;white-space:nowrap}
-#bubble::after{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:#fff}
+#bubble{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);background:#c6c6c6;border:2px solid #000;padding:2px;display:none;white-space:nowrap}
 #bubble svg{width:24px;height:24px;display:block;filter:none}
 #bubble.on{display:block}
-#bubble.err{background:#e53935;color:#fff;font-size:20px;font-weight:800;padding:0 6px}
-#bubble.err::after{border-top-color:#e53935}
-.heart{position:absolute;font-size:30px;color:#ff4f7b;text-shadow:0 2px 0 #8b1538;animation:heart 1.7s ease-out forwards;z-index:20}
+#bubble.err{background:#c62828;color:#fff;font-size:18px;font-weight:700;padding:0 6px}
+.heart{position:absolute;font-size:30px;color:#ff4f7b;text-shadow:0 2px 0 #8b1538;animation:heart 1.7s ease-out forwards;z-index:20;font-family:var(--mc)}
 @keyframes heart{0%{transform:translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:translateY(-80px) scale(1.25);opacity:0}}
-#msg{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;border-radius:14px;padding:14px 56px 14px 18px;font-size:24px;font-weight:700;line-height:1.3;
-  box-shadow:0 6px 18px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.35)}
-#msg.info{background:rgba(21,96,180,.96)}
-#msg.ok{background:rgba(36,128,52,.96)}
-#msg.warn{background:rgba(170,100,0,.97)}
-#msg.err{background:rgba(190,35,35,.97)}
-#msg .yel{display:block;color:#ffe45c;margin-top:6px}
-#msgClose{position:absolute;right:10px;top:10px;width:38px;height:38px;border:none;border-radius:8px;background:rgba(0,0,0,.25);color:#fff;font-size:22px;cursor:pointer}
-#side{flex:1;display:flex;flex-direction:column;gap:14px;background:#2b2f33;border-radius:12px;padding:12px 8px;align-items:center;text-align:center}
-#side .lab{color:#c9c9c9;font-size:22px;line-height:1.15;font-weight:700}
-.slotBox{margin-top:6px;width:72px;height:72px;background:#8d8d8d;border:4px solid;border-color:#5b5b5b #f0f0f0 #f0f0f0 #5b5b5b;display:flex;align-items:center;justify-content:center}
-.slotBox svg{width:50px;height:50px;display:block}
-.pill{display:inline-block;margin-top:6px;padding:4px 10px;border-radius:999px;font-weight:800;font-size:22px}
-.pill.on{background:#3cb043}.pill.off{background:#777}
-.robotMini{width:64px;height:64px}
-.row{flex:none;display:flex;align-items:center;gap:12px;height:56px}
-#chatBox{display:flex;align-items:center;gap:8px;background:#0e0e0e;border-radius:10px;padding:6px 10px 6px 14px;border:2px solid #666;height:52px}
-#chatBox label{color:#aaa;font-weight:700}
-#chatIn{font-size:26px;width:150px;background:transparent;border:none;color:#fff;outline:none;font-family:inherit;font-weight:700}
-#chatIn::placeholder{color:#666;font-size:22px}
-#fcount{margin-left:auto;font-size:24px;font-weight:800;background:#3a2a17;border:2px solid #8b5a2b;border-radius:10px;padding:8px 14px;white-space:nowrap}
-#speedRow{gap:14px;color:#ddd;font-weight:700}
-#speed{width:240px;height:30px;accent-color:#ffc83d;cursor:pointer}
+.pt{position:absolute;width:6px;height:6px;z-index:9;animation:pt .55s ease-out forwards}
+@keyframes pt{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.puff{position:absolute;width:12px;height:12px;background:#f2f2f2;z-index:21;animation:puff .9s ease-out forwards}
+@keyframes puff{0%{transform:translate(0,0) scale(.4);opacity:.95}100%{transform:translate(var(--dx),var(--dy)) scale(1.6);opacity:0}}
+#msg{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;padding:12px 54px 14px 18px;font-size:27px;font-weight:600;line-height:1.25;
+  background:rgba(16,16,16,.86);border:4px solid #000;border-left:12px solid #4aa3ff;color:#fff;text-shadow:2px 2px 0 #000}
+#msg.ok{border-left-color:#5fd33a}
+#msg.warn{border-left-color:#ffc83d}
+#msg.err{border-left-color:#ff4040}
+#msg .yel{display:block;color:#ffe45c;margin-top:4px}
+#msgClose{position:absolute;right:8px;top:8px;width:36px;height:36px;padding:0;font-size:20px}
+#agentPanel{width:150px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 8px;text-align:center}
+#agentPanel .lab{font-size:24px;font-weight:700;line-height:1.1;color:#3f3f3f}
+.robotBig{width:92px;height:92px;background:#8b8b8b;border:3px solid;border-color:#373737 #fff #fff #373737;padding:6px}
+.slot{position:relative;width:88px;height:88px;margin:6px auto 0;background:#8b8b8b;border:4px solid;border-color:#373737 #fff #fff #373737;
+  display:flex;align-items:center;justify-content:center}
+.slot svg{width:60px;height:60px;display:block}
+.slot .cnt{position:absolute;right:4px;bottom:0;font-size:28px;font-weight:700;color:#fff;text-shadow:3px 3px 0 #3f3f3f}
+.pill{display:inline-block;margin-top:8px;padding:6px 10px 8px;font-size:24px;font-weight:700;color:#fff;border:3px solid #000;text-shadow:2px 2px 0 #333}
+.pill.on{background:#3c8527;box-shadow:inset 2px 2px 0 #6dc449,inset -2px -3px 0 #1d4d12}
+.pill.off{background:#6b6b6b;box-shadow:inset 2px 2px 0 #9a9a9a,inset -2px -3px 0 #3c3c3c}
+.row{flex:none;display:flex;align-items:center;gap:12px;height:62px}
+#chatBar{flex:1;height:62px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.62);border:3px solid rgba(0,0,0,.8);padding:0 14px;transition:background .2s}
+#chatBar.flash{background:rgba(60,133,39,.7)}
+#chatBar span{color:#bdbdbd;font-size:26px;font-weight:600}
+#chatIn{flex:1;font-family:var(--pix);font-size:30px;font-weight:600;background:transparent;border:none;color:#fff;outline:none;text-shadow:2px 2px 0 #3f3f3f}
+#chatIn::placeholder{color:#8a8a8a;text-shadow:none;font-size:24px}
+#resetBtn,#animalBtn{flex:1}
+
+/* ---------- вікно завершення ---------- */
+#modal{position:absolute;inset:0;z-index:2000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+.mbox{width:820px;padding:34px 40px 30px;text-align:center;animation:mpop .35s ease-out}
+@keyframes mpop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+#mTitle{font-size:52px;font-weight:700;color:#3f3f3f}
+#mText{font-size:30px;margin:14px 0 26px;color:#3f3f3f}
+.mbtns{display:flex;gap:18px;justify-content:center;align-items:center}
 </style>
 </head>
 <body>
 <div id="stage">
   <div id="topbar">
     <div class="brand">🌾 Магічна ферма</div>
-    <button id="prevBtn" class="btn">◀ Назад</button>
     <div id="lvlTitle"></div>
-    <button id="nextBtn" class="btn">Далі ▶</button>
+    <div id="prog"></div>
     <div class="spacer"></div>
-    <button id="hintBtn" class="btn purple">💡 Підказка</button>
-    <button id="breakBtn" class="btn orange">🔧 Наступна поломка</button>
-    <button id="answerBtn" class="btn green">✅ Показати відповідь</button>
+    <button id="prevBtn" class="mcb">◀ Назад</button>
+    <button id="nextBtn" class="mcb">Далі ▶</button>
+    <button id="answerBtn" class="mcb small" title="Показати відповідь">🔑 Відповідь</button>
   </div>
 
+  <div id="taskWrap"><div id="task">
+    <div id="tMain"><div id="tTitle"></div><div id="tSteps"></div><div id="tCheck"></div></div>
+    <div id="tSide"><div id="tBadge"></div><button id="hintBtn" class="mcb">💡 Підказка</button></div>
+  </div></div>
+
   <div id="main">
-    <div id="palette">
-      <div id="cats"></div>
-      <div id="fly"><div id="flyInner"></div></div>
-      <div id="trashHint"><div class="big">🗑</div>Відпустіть, щоб видалити блок</div>
-    </div>
-
-    <div id="ws">
-      <div id="wsScroll"><div id="wsInner"></div></div>
-      <button id="clearBtn" class="btn">🗑 Очистити програму</button>
-      <div id="wsHelp">Перетягуйте блоки, щоб змінити порядок. Наведіть мишу на блок: ↑ ↓ ✕</div>
-    </div>
-
-    <div id="worldcol">
-      <div id="qbox">
-        <div id="qlabel">❓ Питання до класу</div>
-        <div id="qtext"></div>
-        <div id="qsub"></div>
-      </div>
-      <div id="worldwrap">
-        <div id="world">
-          <canvas id="grass"></canvas>
-          <div id="gridL"></div>
-          <div id="outlineL" class="layer"></div>
-          <div id="fenceL" class="layer"></div>
-          <div id="markL" class="layer"></div>
-          <div id="player" class="spr"><div class="body"></div></div>
-          <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div></div>
-          <div id="panda" class="spr hidden"><div class="body"></div></div>
-          <div id="fxL" class="layer"></div>
-          <div id="msg" class="hidden"><div id="msgText"></div><button id="msgClose" title="Закрити">✕</button></div>
+    <div id="left">
+      <div id="palStrip"><div id="palInner"></div><div id="trashHint">🗑 Відпусти, щоб видалити</div></div>
+      <div id="lrow">
+        <div id="sampleCol" class="gui">
+          <div class="ghead">📋 Зразок</div>
+          <div id="sampleArea"><div id="sampleInner"></div></div>
         </div>
-        <div id="side">
-          <div class="robotMini" id="robotMini"></div>
-          <div><div class="lab">Слот 1</div><div class="slotBox" id="slotBox"></div></div>
+        <div id="ws">
+          <div id="wsScroll"><div id="wsInner"></div></div>
+          <div id="wsHelp">Перетягуй блоки. Наведи мишу на блок: ↑ ↓ ✕</div>
+        </div>
+      </div>
+    </div>
+    <div id="worldCol">
+      <div id="worldRow">
+        <div id="worldFrame">
+          <div id="world">
+            <canvas id="grass"></canvas>
+            <div id="gridL"></div>
+            <div id="outlineL" class="layer"></div>
+            <div id="fenceL" class="layer"></div>
+            <div id="markL" class="layer"></div>
+            <div id="player" class="spr"><div class="body"></div></div>
+            <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div></div>
+            <div id="animalsL" class="layer"></div>
+            <div id="fxL" class="layer"></div>
+            <div id="msg" class="hidden"><div id="msgText"></div><button id="msgClose" class="mcb small" title="Закрити">✕</button></div>
+          </div>
+        </div>
+        <div id="agentPanel" class="gui">
+          <div class="robotBig" id="robotBig"></div>
+          <div class="lab">Агент</div>
+          <div><div class="lab">Інвентар<br>слот 1</div><div class="slot" id="slotBox"></div></div>
           <div><div class="lab">Розміщення<br>на ходу</div><div class="pill off" id="placePill">ВИМКН.</div></div>
         </div>
       </div>
       <div class="row">
-        <div id="chatBox"><label for="chatIn">Чат:</label><input id="chatIn" type="text" placeholder="напишіть 1" autocomplete="off"></div>
-        <button id="runBtn" class="btn green">▶ Запуск</button>
-        <button id="stepBtn" class="btn blue">👣 Покроково</button>
+        <div id="chatBar"><span>Чат:</span><input id="chatIn" type="text" placeholder="напиши 1 і натисни Enter" autocomplete="off" maxlength="20"></div>
+        <button id="runBtn" class="mcb green big">▶ Запустити</button>
       </div>
       <div class="row">
-        <button id="resetBtn" class="btn">↺ Скинути світ</button>
-        <button id="pandaBtn" class="btn light">🐼 Випустити панду</button>
-        <div id="fcount">Блоків паркану: 0</div>
+        <button id="resetBtn" class="mcb">↺ Скинути світ</button>
+        <button id="animalBtn" class="mcb" disabled>🐼 Випустити панду</button>
       </div>
-      <div class="row" id="speedRow">
-        <span>Швидкість:</span><span>повільно</span>
-        <input id="speed" type="range" min="0" max="100" value="35">
-        <span>нормально</span>
-      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="hidden">
+    <div class="gui mbox">
+      <div id="mTitle"></div>
+      <div id="mText"></div>
+      <div class="mbtns"><button id="mStay" class="mcb small">Залишитись тут</button><button id="mGo" class="mcb green big">Далі ▶</button></div>
     </div>
   </div>
 </div>
@@ -266,10 +333,11 @@ addEventListener('resize',fit); fit();
 /* ================= константи ================= */
 const N=15, CELL=40;
 const PLAYER={x:7,y:8};
-const HOME={x:8,y:8};               // де стоїть Агент після «Скинути світ»
+const HOME={x:8,y:8};               // де стоїть агент після "Скинути світ"
 const R=8, NO=18, ND=8, NWID=32;    // геометрія блоків: радіус, зсув зубчика, глибина, ширина
-const CAP=18, AW=22, BH=28;         // «шапка» події, ширина лівої стінки С-блока, нижня планка
-const EX=60, EY=44;                 // позиція блоку події в робочій області
+const CAP=18, AW=22, BH=28;         // "шапка" події, ліва стінка С-блока, нижня планка
+const EX=56, EY=30;                 // позиція блоку події в робочій області
+const STEP_MS=850;                  // фіксована повільна швидкість агента
 const COL={agent:{f:'#D83B01',s:'#9c2a00'}, ev:{f:'#0078D7',s:'#00508f'}};
 const DIRS={
   fwd:  {l:'вперед',  dx:0, dy:-1, a:'⬆'},
@@ -282,6 +350,23 @@ const unkey=k=>{const [x,y]=k.split(',').map(Number);return {x,y};};
 const inB=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+/* ================= звуки (легкі, синтезовані) ================= */
+let AC=null;
+function tone(f,dur,type,vol,when){
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime+(when||0), o=AC.createOscillator(), g=AC.createGain();
+    o.type=type||'square'; o.frequency.value=f;
+    g.gain.setValueAtTime(vol||.04,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const sClick=()=>{tone(1100,.04,'square',.035); tone(700,.05,'square',.03,.035);};
+const sPlace=()=>tone(170,.09,'triangle',.07);
+const sShake=()=>{tone(180,.1,'square',.04); tone(140,.12,'square',.04,.1);};
+const sWin=()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,'square',.035,i*.12));
+const sFail=()=>{tone(330,.16,'triangle',.06); tone(247,.24,'triangle',.06,.16);};
+
 /* ================= піксельні спрайти ================= */
 function pix(rows,pal){
   const h=rows.length,w=rows[0].length;
@@ -290,47 +375,32 @@ function pix(rows,pal){
   return s+'</svg>';
 }
 const ROBOT=pix([
-  ".....yy.....",
-  ".....gg.....",
-  "..GGGGGGGG..",
-  "..GddddddG..",
-  "..GdcddcdG..",
-  "..GddddddG..",
-  "..GGGGGGGG..",
-  ".oMMMMMMMMo.",
-  ".oMMrMMbMMo.",
-  "..MMMMMMMM..",
-  "..kk....kk..",
-  "..kk....kk.."
+  ".....yy.....",".....gg.....","..GGGGGGGG..","..GddddddG..","..GdcddcdG..","..GddddddG..",
+  "..GGGGGGGG..",".oMMMMMMMMo.",".oMMrMMbMMo.","..MMMMMMMM..","..kk....kk..","..kk....kk.."
 ],{y:'#ffd23f',g:'#8a979e',G:'#cfd8dc',d:'#1b2a38',c:'#3ff0ff',M:'#5f9fb5',o:'#ff8c1a',r:'#ff4d4d',b:'#4dff88',k:'#37424b'});
 const KID=pix([
-  "...hhhhhh...",
-  "..hhhhhhhh..",
-  "..hsssssshh.",
-  "..sesssses..",
-  "..ssssssss..",
-  "...ssmmss...",
-  "..pppppppp..",
-  ".spppppppps.",
-  ".spppppppps.",
-  "...bbbbbb...",
-  "...bb..bb...",
-  "...kk..kk..."
+  "...hhhhhh...","..hhhhhhhh..","..hsssssshh.","..sesssses..","..ssssssss..","...ssmmss...",
+  "..pppppppp..",".spppppppps.",".spppppppps.","...bbbbbb...","...bb..bb...","...kk..kk..."
 ],{h:'#d9772b',s:'#f1c27d',e:'#222',m:'#c0392b',p:'#8e44ad',b:'#2c3e8f',k:'#333'});
 const PANDA=pix([
-  ".kk......kk.",
-  ".kkwwwwwwkk.",
-  "..wwwwwwww..",
-  "..wkkwwkkw..",
-  "..wkewwekw..",
-  "..wwwwwwww..",
-  "..wwwnnwww..",
-  "...wwwwww...",
-  ".kkwwwwwwkk.",
-  ".kkwwwwwwkk.",
-  "..kkk..kkk..",
-  "..kkk..kkk.."
+  ".kk......kk.",".kkwwwwwwkk.","..wwwwwwww..","..wkkwwkkw..","..wkewwekw..","..wwwwwwww..",
+  "..wwwnnwww..","...wwwwww...",".kkwwwwwwkk.",".kkwwwwwwkk.","..kkk..kkk..","..kkk..kkk.."
 ],{k:'#1e1e1e',w:'#f4f4f4',e:'#ffffff',n:'#333'});
+const HORSE=pix([
+  "..b......b..","..bb....bb..","..bbmmmmbb..","...bbwwbb...","...kbwwbk...","...bbwwbb...",
+  "....bwwb....","....llll....","....nlln....",".bbbbbbbbbb.",".b.b....b.b.",".h.h....h.h."
+],{b:'#8b5a2b',m:'#3b2412',w:'#f2f2f2',k:'#111',l:'#c89b6d',n:'#3b2412',h:'#2b2b2b'});
+const SHEEP=pix([
+  "..wwwwwwww..",".wwvwwwwvww.","wwwwffffwwww","wwwfkffkfwww","wwwffffffwww","wwwwfppfwwww",
+  "wvwwwwwwwwvw","wwwwwvwwwwww",".wwwwwwwwww.","..ff....ff..","..ff....ff..","..gg....gg.."
+],{w:'#f0f0f0',v:'#d6d6d6',f:'#e3c9a2',k:'#222',p:'#e89aa6',g:'#555'});
+const COW=pix([
+  "h..........h","hbbwwwwwwbbh",".bbwwwwwwbb.","..wkwwwwkw..","..wwwwbbww..","..pppppppp..",
+  "..pnppppnp..","..pppppppp..",".wwbbwwwwbw.",".wbbbwwwwww.",".b.w....w.b.",".k.k....k.k."
+],{h:'#e8e0c8',b:'#1e1e1e',w:'#f4f4f4',k:'#222',p:'#f2a7a7',n:'#8a4b4b'});
+const EMERALD=pix([
+  "...gg...","..gGGg..",".gGLGGg.","gGLGGGGg","gGGGGGDg",".gGGGDg.","..gGDg..","...gg..."
+],{g:'#0b4d22',G:'#17c25a',L:'#b6ffd4',D:'#0c8a3c'});
 const FENCE_ICON='<svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="'+NS+'">'+
   '<rect x="2" y="2" width="3" height="13" fill="#6b4421"/><rect x="11" y="2" width="3" height="13" fill="#6b4421"/>'+
   '<rect x="3" y="3" width="1" height="11" fill="#b5793d"/><rect x="12" y="3" width="1" height="11" fill="#b5793d"/>'+
@@ -350,19 +420,26 @@ function fenceSVG(n){
 }
 $('player').querySelector('.body').innerHTML=KID;
 $('agent').querySelector('.body').innerHTML=ROBOT;
-$('panda').querySelector('.body').innerHTML=PANDA;
-$('robotMini').innerHTML=ROBOT;
+$('robotBig').innerHTML=ROBOT;
 
-function drawGrass(){
-  const cv=$('grass'); cv.width=N*8; cv.height=N*8;
+function noiseCanvas(w,h,cols,seed,extra){
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
   const g=cv.getContext('2d');
-  let seed=12345; const rnd=()=>{seed=(seed*16807)%2147483647; return seed/2147483647;};
-  const cols=['#5fae3f','#5fae3f','#5fae3f','#66b546','#579f38','#6cbd4c','#529a35'];
-  for(let y=0;y<N*8;y++) for(let x=0;x<N*8;x++){ g.fillStyle=cols[Math.floor(rnd()*cols.length)]; g.fillRect(x,y,1,1); }
-  for(let i=0;i<40;i++){ const x=Math.floor(rnd()*N*8), y=Math.floor(rnd()*N*8); g.fillStyle='#4a8f2f'; g.fillRect(x,y,1,2); }
-  for(let i=0;i<16;i++){ const x=Math.floor(rnd()*N*8), y=Math.floor(rnd()*N*8); g.fillStyle=rnd()<.5?'#ffe14d':'#ff8ab3'; g.fillRect(x,y,1,1); }
+  const rnd=()=>{seed=(seed*16807)%2147483647; return seed/2147483647;};
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){ g.fillStyle=cols[Math.floor(rnd()*cols.length)]; g.fillRect(x,y,1,1); }
+  if(extra) extra(g,rnd);
+  return cv;
 }
-drawGrass();
+// фон: темна "земля", як у меню
+stage.style.backgroundImage=`url(${noiseCanvas(16,16,['#3d2b1c','#35251a','#443120','#2e2016','#4a3626'],777).toDataURL()})`;
+// трава у світі
+(function(){
+  const src=noiseCanvas(N*8,N*8,['#5fae3f','#5fae3f','#5fae3f','#66b546','#579f38','#6cbd4c','#529a35'],12345,(g,rnd)=>{
+    for(let i=0;i<40;i++){ g.fillStyle='#4a8f2f'; g.fillRect(Math.floor(rnd()*N*8),Math.floor(rnd()*N*8),1,2); }
+    for(let i=0;i<16;i++){ g.fillStyle=rnd()<.5?'#ffe14d':'#ff8ab3'; g.fillRect(Math.floor(rnd()*N*8),Math.floor(rnd()*N*8),1,1); }
+  });
+  const cv=$('grass'); cv.width=src.width; cv.height=src.height; cv.getContext('2d').drawImage(src,0,0);
+})();
 
 /* ================= модель програми ================= */
 let uid=1;
@@ -376,21 +453,70 @@ function lessonProgram(){
   return [B.tp(),B.slot(1,1),B.mv('fwd',3),B.mv('right',1),B.pl(true),
           B.mv('left',4),B.mv('back',5),B.mv('right',5),B.mv('fwd',6),B.pl(false)];
 }
+function newOf(t){ return t==='tp'?B.tp():t==='slot'?B.slot(1,1):t==='mv'?B.mv('fwd',1):B.pl(true); }
+const SAMPLE=lessonProgram();
+function same(b,s){
+  if(!b||!s||b.type!==s.type) return false;
+  if(b.type==='slot') return b.count===s.count&&b.slot===s.slot;
+  if(b.type==='mv') return b.dir===s.dir&&b.n===s.n;
+  if(b.type==='pl') return b.on===s.on;
+  return true;
+}
+const sig=p=>JSON.stringify(p.map(b=>[b.type,b.count,b.slot,b.dir,b.n,b.on]));
 
-let level=0, breakIdx=0, program=[], hintIds=new Set(), flashIds=new Set();
-let answerMode=false, answerNote='', breakHintId=null, runId=null;
+const ANIMALS={
+  panda:{svg:PANDA, ok:'Ура! Панда в загоні 💚', out:'Ой! Панда знайшла вихід тут', gone:'Паркану немає — панда пішла гуляти!'},
+  horse:{svg:HORSE, ok:'Ура! Коні в загоні 💚',  out:'Ой! Коні знайшли вихід тут', gone:'Паркану немає — коні розбіглися!'},
+  sheep:{svg:SHEEP, ok:'Ура! Вівці в загоні 💚', out:'Ой! Вівці знайшли вихід тут', gone:'Паркану немає — вівці розбіглися!'},
+  cow:  {svg:COW,   ok:'Ура! Корови в загоні 💚', out:'Ой! Корови знайшли вихід тут', gone:'Паркану немає — корови розбіглися!'}
+};
+
+let level=0, breakIdx=0, program=[], initialSig='';
+let hintIds=new Set(), flashIds=new Set(), flagged=new Set(), breakHintId=null, runId=null;
+let answerMode=false, built=false, hintStep=0, typing=false;
+const completed=new Set();
 
 const LV=[
-  {name:'Повтори за мною', q:'Як думаєте, загін вийде закритим?',
-   sub:'Спершу передбачте, де пройде Агент. Потім напишіть у чат «1».'},
-  {name:'Більший загін для коней', q:'Коням потрібен загін ширший на 2 клітинки. Які числа змінити?',
-   sub:'Білий пунктир на карті — такий загін нам потрібен.'},
-  {name:'Зламаний загін', q:'Що зламалося? Як полагодити?', sub:''},
-  {name:'Загін за кресленням', q:'Продиктуйте програму: Агент має збудувати загін точно по контуру 5×5.',
-   sub:'Порахуйте клітинки на кожній стороні креслення.'}
+  {name:'Повтори команди', animal:'panda', count:1, btn:'🐼 Випустити панду', sample:true, marks:true,
+   palette:()=>['tp','slot','mv','pl'],
+   title:'🎯 Повтори команди зі зразка, щоб агент побудував загін.',
+   steps:['Додавай блоки по черзі, як у зразку.','Напиши в чат "1" або натисни "▶ Запустити".','Випусти панду.'],
+   check:'✅ Панда залишилась у загоні — команди повторено правильно.'},
+  {name:'Загін для коней', animal:'horse', count:2, btn:'🐴 Випустити коней', sample:false, locked:true,
+   palette:()=>[], outline:{x0:2,y0:5,x1:9,y1:10},
+   title:'🎯 Коням потрібен більший загін — як білий пунктир.',
+   steps:['Зміни числа в блоках, які світяться.','Запусти програму.','Випусти коней.'],
+   check:'✅ Паркан стоїть точно на білому пунктирі.'},
+  {name:'Знайди помилку', animal:'sheep', count:2, btn:'🐑 Випустити овець', sample:true,
+   palette:()=>[[],['pl','tp','mv'],['slot','pl','tp']][breakIdx],
+   title:'🎯 У програмі помилка. Знайди і виправ її.',
+   steps:['Запусти програму і подивись, що зробить агент.','Порівняй із програмою з рівня 1.','Виправ і запусти ще раз.'],
+   check:'✅ Вівці залишились у загоні.'},
+  {name:'Побудуй сам', animal:'cow', count:2, btn:'🐄 Випустити корів', sample:false,
+   palette:()=>['slot','mv','pl'], outline:{x0:7,y0:3,x1:11,y1:7},
+   title:'🎯 Збери програму, щоб агент побудував загін по білому пунктиру.',
+   steps:['Порахуй клітинки на кожній стороні.','Збери блоки і запусти програму.','Випусти корів.'],
+   check:'✅ Паркан точно на пунктирі, корови в загоні.'}
 ];
-const OUTLINES={1:{x0:2,y0:5,x1:9,y1:10}, 3:{x0:7,y0:3,x1:11,y1:7}};
-const BREAK_NAMES=['А','Б','В'];
+
+function initialProgram(){
+  if(level===0) return [];
+  if(level===1){
+    const p=lessonProgram(); p.forEach(b=>b.lock=true);
+    p[5].edit=['n']; p[7].edit=['n'];            // "ліворуч 4" і "праворуч 5"
+    return p;
+  }
+  if(level===2){
+    const p=lessonProgram();
+    if(breakIdx===0){ p[5].n=3; breakHintId=p[5].id; }          // а) неправильне число → дірка
+    else if(breakIdx===1){ breakHintId=p[5].id; p.splice(4,1); } // б) немає "розмістити на ходу УВІМКН."
+    else { breakHintId=p[4].id; p.splice(1,1); }                 // в) немає паркану у слоті 1
+    return p;
+  }
+  const t=B.tp(); t.fixed=true; return [t];
+}
+const fieldEditable=(b,k)=>b.lock?(b.edit||[]).includes(k):true;
+const canArrange=b=>!LV[level].locked&&!b.fixed;
 
 /* ================= малювання блоків ================= */
 function stmtPath(w,h){
@@ -410,9 +536,9 @@ function mkSvg(){
 function blockContent(b,editable){
   const c=document.createElement('div'); c.className='bc';
   const t=s=>{const e=document.createElement('span'); e.className='bt'; e.textContent=s; c.appendChild(e);};
-  const field=(cls,html,onclick)=>{
+  const field=(cls,html,k,onclick)=>{
     const e=document.createElement('span'); e.className='field '+cls; e.innerHTML=html;
-    if(editable&&onclick) e.addEventListener('click',ev=>{ev.stopPropagation(); onclick(e);});
+    if(editable&&onclick&&fieldEditable(b,k)) e.addEventListener('click',ev=>{ev.stopPropagation(); onclick(e);});
     else e.classList.add('ro');
     c.appendChild(e); return e;
   };
@@ -420,30 +546,33 @@ function blockContent(b,editable){
     case 'tp': t('агент - телепортуватися до гравця'); break;
     case 'slot':
       t('agent, постав блок або предмет');
-      field('fitem',FENCE_ICON+'<span>паркан</span>');
-      t('кількість'); field('fnum',b.count,e=>openNum(b,'count',e));
-      t('у слот');    field('fnum',b.slot,e=>openNum(b,'slot',e));
+      field('fitem',FENCE_ICON+'<span>паркан</span>','item');
+      t('кількість'); field('fnum',b.count,'count',e=>openNum(b,'count',e));
+      t('у слот');    field('fnum',b.slot,'slot',e=>openNum(b,'slot',e));
       break;
     case 'mv':
       t('агент - переміститися');
-      field('fdrop',esc(DIRS[b.dir].l)+' <span class="caret">▾</span>',e=>openDrop(b,e));
-      t('by'); field('fnum',b.n,e=>openNum(b,'n',e));
+      field('fdrop',esc(DIRS[b.dir].l)+' <span class="caret">▾</span>','dir',e=>openDrop(b,e));
+      t('by'); field('fnum',b.n,'n',e=>openNum(b,'n',e));
       break;
     case 'pl':
       t('агент - розмістити на ходу');
       field('ftoggle '+(b.on?'on':'off'),
         b.on?'<span class="tl">УВІМКН.</span><span class="tk"></span>':'<span class="tk"></span><span class="tl">ВИМКН.</span>',
-        ()=>{b.on=!b.on; programChanged();});
+        'on',()=>{ b.on=!b.on; sClick(); programChanged(); validateBlock(b); });
       break;
   }
   return c;
 }
 function makeStmt(b,editable){
   const el=document.createElement('div');
-  el.className='blk'+(editable?' ed':''); el.dataset.id=b.id; el.dataset.type=b.type;
+  el.className='blk'; el.dataset.id=b.id; el.dataset.type=b.type;
   el.appendChild(mkSvg());
   el.appendChild(blockContent(b,editable));
-  if(editable) el.appendChild(makeTools(b));
+  if(editable){
+    if(canArrange(b)) el.appendChild(makeTools(b));
+    else el.classList.add(b.fixed?'fixed':'locked');
+  }
   return el;
 }
 function shapeStmt(el,col){
@@ -453,8 +582,8 @@ function shapeStmt(el,col){
   el.style.width=w+'px'; el.style.height=h+'px';
   return {w,h};
 }
-function makeEvent(editable){
-  const el=document.createElement('div'); el.className='blk ev'+(editable?' ed':'');
+function makeEvent(){
+  const el=document.createElement('div'); el.className='blk ev fixed';
   el.appendChild(mkSvg());
   const c=document.createElement('div'); c.className='bc evh'; c.style.top=CAP+'px';
   const t=document.createElement('span'); t.className='bt'; t.textContent='при команді чату'; c.appendChild(t);
@@ -480,103 +609,143 @@ function makeTools(b){
   });
   return t;
 }
+// розкладка стека блоків: подія + вкладені блоки; повертає елементи
+function layoutStack(container,prog,editable,x0,y0){
+  const ev=makeEvent(); ev.style.left=x0+'px'; ev.style.top=y0+'px'; container.appendChild(ev);
+  const els=prog.map(b=>{const e=makeStmt(b,editable); container.appendChild(e); return e;});
+  const hc=ev.querySelector('.bc'); const hh=hc.offsetHeight, hw=Math.max(hc.offsetWidth,230);
+  let y=y0+CAP+hh; const startY=y, x=x0+AW; let maxW=hw;
+  els.forEach(e=>{ const {w,h}=shapeStmt(e,COL.agent); e.style.left=x+'px'; e.style.top=y+'px'; y+=h; maxW=Math.max(maxW,AW+w); });
+  const ih=Math.max(y-startY,30);
+  const H=shapeEvent(ev,hw,hh,ih);
+  return {els,startY,H,W:maxW};
+}
 
 /* ================= робоча область ================= */
 const wsInner=$('wsInner'), wsScroll=$('wsScroll');
 let progEls=[], innerStartY=0, marker=null;
 function renderProgram(){
   wsInner.innerHTML='';
-  const ev=makeEvent(true); ev.style.left=EX+'px'; ev.style.top=EY+'px'; wsInner.appendChild(ev);
-  const els=program.map(b=>{const e=makeStmt(b,true); wsInner.appendChild(e); return e;});
-  const hc=ev.querySelector('.bc'); const hh=hc.offsetHeight, hw=Math.max(hc.offsetWidth,230);
-  let y=EY+CAP+hh; innerStartY=y; const x=EX+AW; let maxW=hw;
-  els.forEach((e,i)=>{
-    const {w,h}=shapeStmt(e,COL.agent);
-    e.style.left=x+'px'; e.style.top=y+'px'; y+=h; maxW=Math.max(maxW,AW+w);
+  const L=layoutStack(wsInner,program,true,EX,EY);
+  progEls=L.els; innerStartY=L.startY;
+  progEls.forEach((e,i)=>{
     const b=program[i];
     if(hintIds.has(b.id)) e.classList.add('hint');
     if(flashIds.has(b.id)) e.classList.add('flash');
+    if(flagged.has(b.id)) e.classList.add('wrong');
+    if(b.edit&&b.edit.length) e.classList.add('glow');
     if(runId===b.id) e.classList.add('run');
   });
-  const ih=Math.max(y-innerStartY,30);
-  const H=shapeEvent(ev,hw,hh,ih);
-  wsInner.style.height=(EY+H+160)+'px';
-  wsInner.style.width=(EX+maxW+200)+'px';
+  wsInner.style.height=(EY+L.H+120)+'px';
+  wsInner.style.width=(EX+L.W+200)+'px';
   marker=document.createElement('div'); marker.id='marker'; wsInner.appendChild(marker);
-  progEls=els;
+  renderSample();
+}
+function elOf(id){ return progEls.find(e=>+e.dataset.id===id); }
+function scrollToEl(e){
+  if(!e) return;
+  const top=parseFloat(e.style.top), h=e.offsetHeight, st=wsScroll.scrollTop, ch=wsScroll.clientHeight;
+  if(top<st+10||top+h>st+ch-30) wsScroll.scrollTop=Math.max(0,top-ch/3);
 }
 function setRunHL(id){
   runId=id;
-  progEls.forEach(e=>{
-    const on=+e.dataset.id===id; e.classList.toggle('run',on);
-    if(on){
-      const top=parseFloat(e.style.top), h=e.offsetHeight, st=wsScroll.scrollTop, ch=wsScroll.clientHeight;
-      if(top<st+10||top+h>st+ch-90) wsScroll.scrollTop=Math.max(0,top-ch/3);
-    }
-  });
+  progEls.forEach(e=>{ const on=+e.dataset.id===id; e.classList.toggle('run',on); if(on) scrollToEl(e); });
+}
+function shakeBlock(id){
+  const e=elOf(id); if(!e) return;
+  e.classList.remove('shake'); void e.offsetWidth; e.classList.add('shake');
+  scrollToEl(e);
 }
 function programChanged(){
-  if(run){ stopRun(); showMsg('Програму змінено. Запустіть її знову: напишіть у чат «1».','info'); }
+  if(run){ stopRun(); showMsg('Програму змінено. Запусти ще раз.','info'); }
   answerMode=false; hintIds.clear();
+  // знімаємо червону позначку з блоків, які вже збігаються зі зразком
+  [...flagged].forEach(id=>{ const i=program.findIndex(b=>b.id===id); if(i<0||same(program[i],SAMPLE[i])) flagged.delete(id); });
   renderProgram();
 }
 function moveBlock(id,d){
   const i=program.findIndex(b=>b.id===id), j=i+d;
-  if(i<0||j<0||j>=program.length) return;
-  [program[i],program[j]]=[program[j],program[i]]; programChanged();
+  if(i<0||j<0||j>=program.length||!canArrange(program[j])) return;
+  [program[i],program[j]]=[program[j],program[i]]; sClick(); programChanged();
 }
 function delBlock(id){
-  const i=program.findIndex(b=>b.id===id); if(i<0) return;
-  program.splice(i,1); closePopup(); programChanged();
+  const i=program.findIndex(b=>b.id===id); if(i<0||!canArrange(program[i])) return;
+  program.splice(i,1); closePopup(); sClick(); programChanged();
 }
-function newOf(t){ return t==='tp'?B.tp():t==='slot'?B.slot(1,1):t==='mv'?B.mv('fwd',1):B.pl(true); }
-function paletteAdd(t){
-  if(t==='ev'){ showMsg('Блок «при команді чату "1"» уже є в програмі. Усі інші блоки вкладаються всередину нього.','info'); return; }
-  program.push(newOf(t)); programChanged();
-  wsScroll.scrollTop=wsScroll.scrollHeight;
+function insertBlock(t,idx){
+  const b=newOf(t);
+  if(idx==null||idx>program.length) idx=program.length;
+  program.splice(idx,0,b); sClick(); programChanged();
+  const e=elOf(b.id); if(e){ e.classList.add('flash'); setTimeout(()=>e.classList.remove('flash'),500); scrollToEl(e); }
+  if(LV[level].marks) validateAdd(b,idx);
 }
 
-/* ---------- очищення ---------- */
-let clearArm=null;
-const clearBtn=$('clearBtn');
-clearBtn.onclick=()=>{
-  if(!clearArm){
-    clearBtn.textContent='Точно очистити? ✓'; clearBtn.classList.add('armed');
-    clearArm=setTimeout(()=>{clearArm=null; clearBtn.textContent='🗑 Очистити програму'; clearBtn.classList.remove('armed');},3000);
-    return;
+/* ---------- перевірка зі зразком (рівень 1) ---------- */
+function matchedPrefix(){ let i=0; while(i<program.length&&i<SAMPLE.length&&same(program[i],SAMPLE[i])) i++; return i; }
+function flagBlock(b){
+  flagged.add(b.id); renderProgram(); shakeBlock(b.id); sShake();
+  showMsg('Подивись у зразок ще раз 👀','warn');
+}
+function validateAdd(b,idx){
+  const s=SAMPLE[idx];
+  if(!s||s.type!==b.type){ flagBlock(b); return; }
+  for(let j=0;j<idx;j++) if(!same(program[j],SAMPLE[j])){ flagBlock(program[j]); return; }
+}
+function validateBlock(b){
+  if(!LV[level].marks) return;
+  const i=program.indexOf(b); if(i<0) return;
+  if(!same(b,SAMPLE[i])) flagBlock(b);
+  else if(flagged.delete(b.id)) renderProgram();
+}
+
+/* ================= зразок ================= */
+const sampleInner=$('sampleInner');
+let sampleEls=[];
+function renderSample(){
+  if(!LV[level].sample){ sampleInner.innerHTML=''; return; }
+  sampleInner.innerHTML=''; sampleInner.style.transform='none';
+  const L=layoutStack(sampleInner,SAMPLE,false,46,22);
+  sampleEls=L.els;
+  if(LV[level].marks){
+    const done=matchedPrefix();
+    sampleEls.forEach((e,i)=>{
+      const top=parseFloat(e.style.top);
+      if(i<done){
+        e.classList.add('sdone');
+        const m=document.createElement('div'); m.className='smark ok'; m.textContent='✔';
+        m.style.left='6px'; m.style.top=(top+10)+'px'; sampleInner.appendChild(m);
+      }else if(i===done){
+        e.classList.add('snext');
+        const m=document.createElement('div'); m.className='smark nx'; m.textContent='👉';
+        m.style.left='4px'; m.style.top=(top+8)+'px'; sampleInner.appendChild(m);
+      }
+    });
   }
-  clearTimeout(clearArm); clearArm=null; clearBtn.textContent='🗑 Очистити програму'; clearBtn.classList.remove('armed');
-  closePopup(); program=[]; flashIds.clear(); programChanged();
-};
+  const area=$('sampleArea');
+  const cw=46+L.W+20, ch=22+L.H+20;
+  const sc=Math.min(1,(area.clientWidth)/cw,(area.clientHeight)/ch);
+  sampleInner.style.width=cw+'px'; sampleInner.style.height=ch+'px';
+  sampleInner.style.transform=`scale(${sc})`;
+}
 
 /* ================= палітра ================= */
-let cat='agent';
-const CATS=[{id:'agent',name:'Агент',c:COL.agent.f,ic:'🤖'},{id:'ev',name:'Події',c:COL.ev.f,ic:'⚡'}];
 function renderPalette(){
-  const cats=$('cats'); cats.innerHTML='';
-  CATS.forEach(k=>{
-    const d=document.createElement('div'); d.className='cat'+(cat===k.id?' sel':''); d.style.setProperty('--c',k.c);
-    d.innerHTML=`<span class="sq">${k.ic}</span>${k.name}`;
-    d.onclick=()=>{cat=k.id; renderPalette();};
-    cats.appendChild(d);
+  const types=LV[level].palette();
+  const strip=$('palStrip'), inner=$('palInner');
+  strip.classList.toggle('hidden',!types.length);
+  inner.innerHTML='';
+  if(!types.length) return;
+  const maxW=strip.clientWidth-20, rows=[];
+  types.forEach(t=>{
+    const el=makeStmt(newOf(t),false); el.classList.add('pal'); el.dataset.type=t;
+    inner.appendChild(el); const {w,h}=shapeStmt(el,COL.agent);
+    let r=rows.find(r=>r.x+w<=maxW);            // перший ряд, де є місце
+    if(!r){ r={x:12,h:0,items:[]}; rows.push(r); }
+    r.items.push({el,x:r.x}); r.x+=w+18; r.h=Math.max(r.h,h);
   });
-  const fi=$('flyInner'); fi.innerHTML='';
-  let y=22;
-  if(cat==='agent'){
-    ['tp','slot','mv','pl'].forEach(t=>{
-      const el=makeStmt(newOf(t),false); el.classList.add('pal'); el.dataset.type=t;
-      fi.appendChild(el); const {h}=shapeStmt(el,COL.agent);
-      el.style.left='18px'; el.style.top=y+'px'; y+=h+ND+24;
-    });
-  }else{
-    const el=makeEvent(false); el.classList.add('pal'); el.dataset.type='ev'; fi.appendChild(el);
-    const hc=el.querySelector('.bc'); const H=shapeEvent(el,Math.max(hc.offsetWidth,230),hc.offsetHeight,30);
-    el.style.left='18px'; el.style.top=(y+8)+'px'; y+=H+40;
-  }
-  const help=document.createElement('div'); help.id='flyHelp'; help.style.top=(y+6)+'px';
-  help.innerHTML='👆 Клік по блоку — додати в кінець програми.<br>✋ Або перетягніть блок у потрібне місце.';
-  fi.appendChild(help);
-  fi.style.height=(y+150)+'px';
+  let y=12;
+  rows.forEach(r=>{ r.items.forEach(it=>{ it.el.style.left=it.x+'px'; it.el.style.top=y+'px'; }); y+=r.h+ND+12; });
+  inner.style.height=(y+4)+'px';
 }
 
 /* ================= перетягування ================= */
@@ -585,9 +754,10 @@ wsInner.addEventListener('pointerdown',e=>{
   if(e.button!==0) return;
   const blk=e.target.closest('.blk'); if(!blk||blk.classList.contains('ev')) return;
   if(e.target.closest('.field,.btools')) return;
-  cand={kind:'prog',id:+blk.dataset.id,el:blk,x:e.clientX,y:e.clientY}; e.preventDefault();
+  const b=program.find(p=>p.id===+blk.dataset.id); if(!b||!canArrange(b)) return;
+  cand={kind:'prog',id:b.id,el:blk,x:e.clientX,y:e.clientY}; e.preventDefault();
 });
-$('flyInner').addEventListener('pointerdown',e=>{
+$('palInner').addEventListener('pointerdown',e=>{
   if(e.button!==0) return;
   const blk=e.target.closest('.blk'); if(!blk) return;
   cand={kind:'pal',type:blk.dataset.type,el:blk,x:e.clientX,y:e.clientY}; e.preventDefault();
@@ -598,14 +768,14 @@ addEventListener('pointermove',e=>{
 });
 addEventListener('pointerup',e=>{
   if(drag) endDrag(e);
-  else if(cand&&cand.kind==='pal') paletteAdd(cand.type);
+  else if(cand&&cand.kind==='pal') insertBlock(cand.type,null);
   cand=null;
 });
-function inRect(e,el){const r=el.getBoundingClientRect(); return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;}
+function inRect(e,el){const r=el.getBoundingClientRect(); return r.width>0&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;}
 function beginDrag(e){
   closePopup();
   const r=cand.el.getBoundingClientRect();
-  const ghost=cand.el.cloneNode(true); ghost.classList.add('ghost'); ghost.classList.remove('run','hint','flash');
+  const ghost=cand.el.cloneNode(true); ghost.classList.add('ghost'); ghost.classList.remove('run','hint','flash','wrong','shake');
   stage.appendChild(ghost);
   drag=Object.assign({},cand,{ghost,offX:(e.clientX-r.left)/S,offY:(e.clientY-r.top)/S,idx:null,del:false});
   if(drag.kind==='prog') cand.el.classList.add('dsrc');
@@ -615,10 +785,10 @@ function moveDrag(e){
   const st=stage.getBoundingClientRect();
   drag.ghost.style.left=((e.clientX-st.left)/S-drag.offX)+'px';
   drag.ghost.style.top=((e.clientY-st.top)/S-drag.offY)+'px';
-  const overWs=inRect(e,$('ws')), overPal=inRect(e,$('palette'));
+  const overWs=inRect(e,$('ws')), overPal=inRect(e,$('palStrip'));
   drag.del=drag.kind==='prog'&&overPal;
-  $('palette').classList.toggle('trash',drag.del);
-  if(overWs&&drag.type!=='ev'){
+  $('palStrip').classList.toggle('trash',drag.del);
+  if(overWs){
     const list=progEls.filter(el=>!(drag.kind==='prog'&&+el.dataset.id===drag.id));
     const refY=e.clientY-drag.offY*S+22*S;
     let idx=0; list.forEach(el=>{const r=el.getBoundingClientRect(); if(r.top+r.height/2<refY) idx++;});
@@ -633,20 +803,24 @@ function moveDrag(e){
 }
 function endDrag(){
   const d=drag; drag=null;
-  d.ghost.remove(); $('palette').classList.remove('trash'); if(marker) marker.style.display='none';
+  d.ghost.remove(); $('palStrip').classList.remove('trash'); if(marker) marker.style.display='none';
   if(d.kind==='prog'){
     const i=program.findIndex(b=>b.id===d.id);
-    if(d.del&&i>=0){ program.splice(i,1); programChanged(); return; }
-    if(d.idx!==null&&i>=0){ const [b]=program.splice(i,1); program.splice(d.idx,0,b); programChanged(); return; }
+    if(d.del&&i>=0){ program.splice(i,1); sClick(); programChanged(); return; }
+    if(d.idx!==null&&i>=0){ const [b]=program.splice(i,1); program.splice(d.idx,0,b); sClick(); programChanged(); return; }
     d.el.classList.remove('dsrc');
-  }else if(d.idx!==null&&d.type!=='ev'){
-    program.splice(d.idx,0,newOf(d.type)); programChanged();
+  }else if(d.idx!==null){
+    insertBlock(d.type,d.idx);
   }
 }
 
 /* ================= редактори полів ================= */
-let popup=null;
-function closePopup(){ if(popup){popup.remove(); popup=null;} }
+let popup=null, popupClose=null;
+function closePopup(){
+  if(!popup) return;
+  popup.remove(); popup=null;
+  const f=popupClose; popupClose=null; if(f) f();
+}
 function placePopup(pop,fe){
   const st=stage.getBoundingClientRect(), r=fe.getBoundingClientRect();
   stage.appendChild(pop);
@@ -658,24 +832,25 @@ function placePopup(pop,fe){
 }
 function openNum(b,k,fe){
   closePopup();
-  const pop=document.createElement('div'); pop.className='popup';
-  pop.innerHTML='<div class="numrow"><button class="big minus">−</button><div class="nval"></div><button class="big plus">+</button></div><div class="quick"></div><button class="okb">Готово ✓</button>';
+  const pop=document.createElement('div'); pop.className='popup gui';
+  pop.innerHTML='<div class="numrow"><button class="mcb big minus">−</button><div class="nval"></div><button class="mcb big green plus">+</button></div><div class="quick"></div><button class="mcb okb">Готово ✓</button>';
   const val=pop.querySelector('.nval'), q=pop.querySelector('.quick');
-  for(let i=1;i<=10;i++){const bt=document.createElement('button'); bt.textContent=i; bt.onclick=()=>set(i); q.appendChild(bt);}
+  for(let i=1;i<=10;i++){const bt=document.createElement('button'); bt.className='mcb'; bt.textContent=i; bt.onclick=()=>{set(i); closePopup();}; q.appendChild(bt);}
   function show(){ val.textContent=b[k]; [...q.children].forEach((c,i)=>c.classList.toggle('cur',i+1===b[k])); }
-  function set(v){ v=Math.max(1,Math.min(10,v)); if(v===b[k]) return; b[k]=v; show(); programChanged(); }
+  function set(v){ v=Math.max(1,Math.min(10,v)); if(v===b[k]) return; b[k]=v; sClick(); show(); programChanged(); }
   pop.querySelector('.minus').onclick=()=>set(b[k]-1);
   pop.querySelector('.plus').onclick=()=>set(b[k]+1);
   pop.querySelector('.okb').onclick=closePopup;
   show(); placePopup(pop,fe);
+  popupClose=()=>validateBlock(b);
 }
 function openDrop(b,fe){
   closePopup();
-  const pop=document.createElement('div'); pop.className='popup';
+  const pop=document.createElement('div'); pop.className='popup gui';
   Object.keys(DIRS).forEach(d=>{
-    const bt=document.createElement('button'); bt.className='dropopt'+(b.dir===d?' cur':'');
+    const bt=document.createElement('button'); bt.className='mcb dropopt'+(b.dir===d?' cur':'');
     bt.innerHTML=`<span class="ar">${DIRS[d].a}</span>${DIRS[d].l}`;
-    bt.onclick=()=>{ b.dir=d; closePopup(); programChanged(); };
+    bt.onclick=()=>{ b.dir=d; sClick(); closePopup(); programChanged(); validateBlock(b); };
     pop.appendChild(bt);
   });
   placePopup(pop,fe);
@@ -687,12 +862,32 @@ addEventListener('keydown',e=>{ if(e.key==='Escape') closePopup(); });
 
 /* ================= світ ================= */
 const W={};
-let marks=[], pandaTimers=[];
+let marks=[], animalTimers=[], animals=[];
 function resetWorld(){
-  clearPanda();
-  W.agent={...HOME}; W.hasFence=false; W.placeOn=false; W.fences=new Set();
-  W.warned=false; W.teleported=true; W.newFence=null; W.ran=false;
+  clearAnimals();
+  W.agent={...HOME}; W.hasFence=false; W.slotCount=0; W.placeOn=false; W.fences=new Set();
+  W.warned=false; W.teleported=true; W.newFence=null;
+  built=false; updateButtons();
   renderWorld();
+}
+function particles(x,y){
+  for(let i=0;i<7;i++){
+    const p=document.createElement('div'); p.className='pt';
+    p.style.background=['#a8703a','#6b4421','#cf9455','#4e3216'][i%4];
+    p.style.left=(x*CELL+17)+'px'; p.style.top=(y*CELL+17)+'px';
+    const a=Math.random()*Math.PI*2, d=14+Math.random()*16;
+    p.style.setProperty('--dx',Math.cos(a)*d+'px'); p.style.setProperty('--dy',Math.sin(a)*d+'px');
+    $('fxL').appendChild(p); setTimeout(()=>p.remove(),600);
+  }
+}
+function puff(x,y){
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div'); p.className='puff';
+    p.style.left=(x*CELL+14)+'px'; p.style.top=(y*CELL+14)+'px';
+    const a=i/12*Math.PI*2, d=24+Math.random()*20;
+    p.style.setProperty('--dx',Math.cos(a)*d+'px'); p.style.setProperty('--dy',Math.sin(a)*d+'px');
+    $('fxL').appendChild(p); setTimeout(()=>p.remove(),950);
+  }
 }
 function renderWorld(){
   const fl=$('fenceL'); fl.innerHTML='';
@@ -703,6 +898,7 @@ function renderWorld(){
     d.innerHTML=fenceSVG({u:W.fences.has(key(x,y-1)),d:W.fences.has(key(x,y+1)),l:W.fences.has(key(x-1,y)),r:W.fences.has(key(x+1,y))});
     fl.appendChild(d);
   });
+  if(W.newFence){ const {x,y}=unkey(W.newFence); particles(x,y); sPlace(); }
   W.newFence=null;
 
   const ag=$('agent'), body=ag.querySelector('.body');
@@ -713,26 +909,24 @@ function renderWorld(){
     body.classList.remove('tp'); void body.offsetWidth; body.classList.add('tp');
     W.teleported=false;
   }else{
-    const t=Math.round(Math.min(delay()*0.75,420));
-    ag.style.transition=`left ${t}ms ease, top ${t}ms ease, transform .3s`;
+    ag.style.transition='left 600ms ease, top 600ms ease, transform .3s';
     ag.style.left=W.agent.x*CELL+'px'; ag.style.top=W.agent.y*CELL+'px';
   }
   const pl=$('player'); pl.style.left=PLAYER.x*CELL+'px'; pl.style.top=PLAYER.y*CELL+'px';
-  const same=W.agent.x===PLAYER.x&&W.agent.y===PLAYER.y;
-  pl.classList.toggle('under',same); ag.classList.toggle('over',same);
+  const onPlayer=W.agent.x===PLAYER.x&&W.agent.y===PLAYER.y;
+  pl.classList.toggle('under',onPlayer); ag.classList.toggle('over',onPlayer);
 
   const bub=$('bubble');
   if(W.hasFence){ bub.className='on'; bub.innerHTML=FENCE_ICON; }
   else if(W.warned){ bub.className='on err'; bub.textContent='⚠ пусто'; }
   else { bub.className=''; bub.innerHTML=''; }
 
-  $('slotBox').innerHTML=W.hasFence?FENCE_ICON:'';
+  $('slotBox').innerHTML=W.hasFence?FENCE_ICON+`<span class="cnt">${W.slotCount}</span>`:'';
   const pp=$('placePill'); pp.className='pill '+(W.placeOn?'on':'off'); pp.textContent=W.placeOn?'УВІМКН.':'ВИМКН.';
-  $('fcount').textContent='Блоків паркану: '+W.fences.size;
 }
 function renderOutline(){
   const L=$('outlineL'); L.innerHTML='';
-  const o=OUTLINES[level]; if(!o) return;
+  const o=LV[level].outline; if(!o) return;
   for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++){
     if(x!==o.x0&&x!==o.x1&&y!==o.y0&&y!==o.y1) continue;
     const d=document.createElement('div'); d.className='cellE ol'; d.style.left=x*CELL+'px'; d.style.top=y*CELL+'px'; L.appendChild(d);
@@ -750,24 +944,31 @@ $('msgClose').onclick=hideMsg;
 
 /* ================= виконання програми ================= */
 let run=null;
-const speed=$('speed');
-function delay(){ return Math.round(1300-(+speed.value)*8.5); }   // повільно 1300 мс … нормально 450 мс
 function compile(){
   const st=[];
   program.forEach(b=>{ if(b.type==='mv'){ for(let k=0;k<b.n;k++) st.push({b,k}); } else st.push({b}); });
   return st;
 }
-function startRun(auto){
+function startRun(){
   closePopup(); stopRun(); resetWorld(); hideMsg();
-  if(!program.length){ showMsg('Програма порожня. Додайте блоки з палітри зліва.','warn'); return false; }
-  run={steps:compile(),pc:0,auto,timer:null}; W.ran=true;
-  updateRunButtons();
-  if(auto) run.timer=setTimeout(advance,500);
+  if(!program.length){ showMsg('Додай блоки в програму.','warn'); return false; }
+  if(LV[level].marks){
+    const i=matchedPrefix();
+    if(i<program.length||program.length<SAMPLE.length){
+      const b=program[Math.min(i,program.length-1)];
+      if(b&&!same(b,SAMPLE[program.indexOf(b)])) flagged.add(b.id);
+      renderProgram(); if(b) shakeBlock(b.id);
+      showMsg('Подивись у зразок ще раз 👀 Але запустимо — подивись, що вийде.','warn');
+    }
+  }
+  run={steps:compile(),pc:0,timer:null};
+  updateButtons();
+  run.timer=setTimeout(advance,600);
   return true;
 }
 function stopRun(){
   if(!run) return;
-  clearTimeout(run.timer); run=null; setRunHL(null); updateRunButtons();
+  clearTimeout(run.timer); run=null; setRunHL(null); updateButtons();
 }
 function advance(){
   if(!run) return;
@@ -775,10 +976,7 @@ function advance(){
   setRunHL(s.b.id);
   exec(s);
   if(!run) return;
-  clearTimeout(run.timer);
-  if(run.pc>=run.steps.length) run.timer=setTimeout(finishRun,Math.max(500,delay()));
-  else if(run.auto) run.timer=setTimeout(advance,delay());
-  updateRunButtons();
+  run.timer=setTimeout(run.pc>=run.steps.length?finishRun:advance,STEP_MS);
 }
 function exec(s){
   const b=s.b;
@@ -786,11 +984,11 @@ function exec(s){
     W.agent={...PLAYER}; W.teleported=true;
     if(W.placeOn) placeFence();
   }else if(b.type==='slot'){
-    if(b.slot===1) W.hasFence=true;
-    else showMsg(`Паркан покладено у слот ${b.slot}, а Агент будує з предмета у слоті 1!`,'warn');
+    if(b.slot===1){ W.hasFence=true; W.slotCount=b.count; }
+    else showMsg(`Паркан у слоті ${b.slot}. А агент будує зі слоту 1!`,'warn');
   }else if(b.type==='mv'){
     const d=DIRS[b.dir], nx=W.agent.x+d.dx, ny=W.agent.y+d.dy;
-    if(!inB(nx,ny)) showMsg('Агент дійшов до краю світу — далі йти не можна!','warn');
+    if(!inB(nx,ny)) showMsg('Агент дійшов до краю світу!','warn');
     else { W.agent={x:nx,y:ny}; if(W.placeOn) placeFence(); }
   }else if(b.type==='pl'){
     W.placeOn=b.on;
@@ -800,7 +998,7 @@ function exec(s){
 }
 function placeFence(){
   if(!W.hasFence){
-    if(!W.warned){ W.warned=true; showMsg('У Агента немає паркану в інвентарі!','err'); }
+    if(!W.warned){ W.warned=true; showMsg('В інвентарі агента немає паркану!','err'); }
     return;
   }
   const k=key(W.agent.x,W.agent.y);
@@ -808,37 +1006,52 @@ function placeFence(){
 }
 function finishRun(){
   if(!run) return;
-  clearTimeout(run.timer); run=null; setRunHL(null); updateRunButtons();
+  clearTimeout(run.timer); run=null; setRunHL(null);
+  built=true; updateButtons();
   const wasAns=answerMode; answerMode=false;
-  if(W.warned) showMsg('У Агента немає паркану в інвентарі! Агент пройшов увесь шлях, але будувати не було з чого. 🎒','err');
-  else if(!W.fences.size) showMsg('Агент пройшов увесь шлях, але не поставив жодного паркану. Чому так? 🤔','warn');
-  else showMsg(`Програму виконано! Блоків паркану: ${W.fences.size}.<br>Тепер натисніть «🐼 Випустити панду».`,'info');
-  if(wasAns) pandaTimers.push(setTimeout(releasePanda,1000));
+  const btn=LV[level].btn;
+  if(level===2&&analyze(W.fences).kind!=='closed'){
+    if(W.warned) showMsg('В інвентарі агента порожньо 🤔','warn');
+    else if(!W.fences.size) showMsg('Агент іде, але не ставить паркан 🤔','warn');
+    else showMsg(`Одна сторона коротша 🤔 Натисни "${btn}" і перевір.`,'warn');
+  }
+  else if(W.warned) showMsg('В інвентарі агента немає паркану! 🤔','err');
+  else if(!W.fences.size) showMsg('Агент пройшов, але не поставив паркан 🤔','warn');
+  else showMsg(`Агент закінчив! Тепер натисни "${btn}".`,'info');
+  if(wasAns) animalTimers.push(setTimeout(releaseAnimals,1000));
 }
-function updateRunButtons(){
+function updateButtons(){
   const rb=$('runBtn');
-  if(run&&run.auto){ rb.textContent='⏸ Пауза'; rb.className='btn orange'; }
-  else if(run){ rb.textContent='▶ Продовжити'; rb.className='btn green'; }
-  else { rb.textContent='▶ Запуск'; rb.className='btn green'; }
+  rb.disabled=!!run||typing;
+  rb.textContent=run?'⏳ Агент працює…':'▶ Запустити';
+  const ab=$('animalBtn');
+  ab.textContent=LV[level].btn;
+  ab.disabled=!built||!!run;
 }
+function submitChat(v){
+  v=v.trim();
+  if(v==='1'){ $('chatIn').value=''; startRun(); }
+  else if(v==='') showMsg('Напиши в чат 1 і натисни Enter.','info');
+  else showMsg(`Програма запускається командою "1". У чаті: "${esc(v)}".`,'warn');
+}
+$('chatIn').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!run) submitChat(e.target.value); });
 $('runBtn').onclick=()=>{
-  if(!run){ startRun(true); return; }
-  if(run.auto){ run.auto=false; if(run.pc<run.steps.length) clearTimeout(run.timer); updateRunButtons(); }
-  else { run.auto=true; updateRunButtons(); if(run.pc<run.steps.length) advance(); }
+  if(run||typing) return;
+  typing=true; updateButtons();
+  const ci=$('chatIn'), bar=$('chatBar'); ci.value='';
+  setTimeout(()=>{ ci.value='1'; sClick(); bar.classList.add('flash'); },250);
+  setTimeout(()=>{ bar.classList.remove('flash'); typing=false; submitChat(ci.value); },850);
 };
-$('stepBtn').onclick=()=>{
-  if(!run){ if(startRun(false)) advance(); return; }
-  run.auto=false; clearTimeout(run.timer);
-  if(run.pc<run.steps.length) advance(); else finishRun();
+let resetArm=null;
+$('resetBtn').onclick=()=>{
+  const rb=$('resetBtn');
+  if(sig(program)!==initialSig&&!resetArm){
+    rb.textContent='Точно скинути? ↺'; rb.classList.add('armed');
+    resetArm=setTimeout(disarmReset,3000); return;
+  }
+  disarmReset(); loadLevel(level,true);
 };
-$('chatIn').addEventListener('keydown',e=>{
-  if(e.key!=='Enter') return;
-  const v=e.target.value.trim();
-  if(v==='1'){ e.target.value=''; startRun(true); }
-  else if(v==='') showMsg('Напишіть у чат <b>1</b> і натисніть Enter — так запускається програма.','info');
-  else showMsg(`Програма запускається командою «1». У чаті написано «${esc(v)}».`,'warn');
-});
-$('resetBtn').onclick=()=>{ stopRun(); answerMode=false; resetWorld(); hideMsg(); };
+function disarmReset(){ clearTimeout(resetArm); resetArm=null; const rb=$('resetBtn'); rb.textContent='↺ Скинути світ'; rb.classList.remove('armed'); }
 
 /* ================= перевірка загону ================= */
 const D4=[[0,-1],[1,0],[0,1],[-1,0]];
@@ -918,7 +1131,7 @@ function analyze(fs){
     let path=pathOut(fs,start);
     const hi=path.findIndex(c=>c.x===hole.x&&c.y===hole.y);
     if(hi>=0) path=path.slice(0,Math.min(path.length,hi+4));
-    return {kind:'hole',start,path,hole};
+    return {kind:'hole',start,path,hole,pen};
   }
   // Кілька дірок або паркан не схожий на загін
   const bb=bbox([...fs].map(unkey));
@@ -933,156 +1146,220 @@ function analyze(fs){
   const hole=path[ei]; path=path.slice(0,Math.min(path.length,ei+4));
   return {kind:'hole',start,path,hole};
 }
-function clearPanda(){
-  pandaTimers.forEach(clearTimeout); pandaTimers=[];
-  $('panda').classList.add('hidden'); $('fxL').innerHTML='';
+function exactOutline(a){
+  const o=LV[level].outline; if(!o||a.kind!=='closed') return false;
+  for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++)
+    if((x===o.x0||x===o.x1||y===o.y0||y===o.y1)&&!W.fences.has(key(x,y))) return false;
+  const w=o.x1-o.x0-1, h=o.y1-o.y0-1;
+  return a.bb.x0===o.x0+1&&a.bb.y0===o.y0+1&&a.bb.w===w&&a.bb.h===h&&a.pen.length===w*h;
+}
+
+/* ---------- тварини ---------- */
+function clearAnimals(){
+  animalTimers.forEach(t=>{clearTimeout(t); clearInterval(t);}); animalTimers=[];
+  animals=[]; $('animalsL').innerHTML=''; $('fxL').innerHTML='';
   marks=[]; renderMarks();
 }
-function setPanda(c,instant){
-  const p=$('panda');
-  if(instant) p.style.transition='none';
-  p.style.left=c.x*CELL+'px'; p.style.top=c.y*CELL+'px';
-  if(instant){ void p.offsetWidth; p.style.transition=''; }
+function spawnAnimal(c){
+  const d=document.createElement('div'); d.className='spr animal drop';
+  d.innerHTML='<div class="body">'+ANIMALS[LV[level].animal].svg+'</div>';
+  d.style.left=c.x*CELL+'px'; d.style.top=c.y*CELL+'px';
+  $('animalsL').appendChild(d);
+  const a={el:d,x:c.x,y:c.y}; animals.push(a); return a;
 }
-function hearts(c){
-  for(let i=0;i<10;i++) pandaTimers.push(setTimeout(()=>{
+function moveAnimal(a,c){ a.x=c.x; a.y=c.y; a.el.style.left=c.x*CELL+'px'; a.el.style.top=c.y*CELL+'px'; }
+function startCells(pen,first,n){
+  const busy=c=>(c.x===PLAYER.x&&c.y===PLAYER.y)||(c.x===W.agent.x&&c.y===W.agent.y);
+  const res=[first];
+  const rest=pen.filter(c=>!(c.x===first.x&&c.y===first.y)&&!busy(c))
+    .sort((a,b)=>Math.hypot(a.x-first.x,a.y-first.y)-Math.hypot(b.x-first.x,b.y-first.y));
+  for(let i=0;i<rest.length&&res.length<n;i++) res.push(rest[i]);
+  return res;
+}
+function hearts(a,delay){
+  animalTimers.push(setTimeout(()=>{
     const h=document.createElement('div'); h.className='heart'; h.textContent='♥';
-    h.style.left=(c.x*CELL+Math.random()*34-8)+'px'; h.style.top=(c.y*CELL-8)+'px';
+    h.style.left=(a.x*CELL+Math.random()*24-4)+'px'; h.style.top=(a.y*CELL-8)+'px';
     $('fxL').appendChild(h); setTimeout(()=>h.remove(),1800);
-  },700+i*280));
+  },delay));
 }
-function releasePanda(){
-  if(run){ showMsg('Зачекайте — Агент ще будує!','warn'); return; }
-  closePopup(); clearPanda();
+function wander(pen){
+  const inPen=new Set(pen.map(c=>key(c.x,c.y)));
+  const iv=setInterval(()=>{
+    animals.forEach(a=>{
+      if(Math.random()<.4) return;
+      const opts=D4.map(([dx,dy])=>({x:a.x+dx,y:a.y+dy}))
+        .filter(c=>inPen.has(key(c.x,c.y))&&!animals.some(o=>o!==a&&o.x===c.x&&o.y===c.y)&&!(c.x===PLAYER.x&&c.y===PLAYER.y));
+      if(opts.length) moveAnimal(a,opts[Math.floor(Math.random()*opts.length)]);
+    });
+  },1200);
+  animalTimers.push(iv);
+  animalTimers.push(setTimeout(()=>clearInterval(iv),30000));
+}
+function releaseAnimals(){
+  if(run||!built) return;
+  closePopup(); clearAnimals();
+  const A=ANIMALS[LV[level].animal];
   const a=analyze(W.fences);
-  if(a.kind==='empty'){ showMsg(W.ran?'Паркану немає зовсім — панда пішла гуляти! 🐼 Що зламалося в програмі?':'Паркану ще немає. Спершу запустіть програму: напишіть у чат «1».','warn'); return; }
-  if(a.kind==='small'){ showMsg('Загін замалий: усередині немає жодної вільної клітинки, куди можна поставити панду.','warn'); return; }
-  const p=$('panda'); setPanda(a.start,true);
-  p.classList.remove('hidden','drop'); void p.offsetWidth; p.classList.add('drop');
+  if(a.kind==='empty'){ sFail(); showMsg(A.gone+' 🤔','warn'); return; }
+  if(a.kind==='small'){ sFail(); showMsg('Загін замалий — тваринам нема місця.','warn'); return; }
 
   if(a.kind==='closed'){
-    hearts(a.start);
-    let type='ok', html='Загін готовий! Панда в безпеці 🐼💚';
-    const outW=a.bb.w+2, outH=a.bb.h+2;
-    if(level===1){
-      if(outW===8&&outH===6) html='Загін готовий! Панда в безпеці 🐼💚<br>Ширина загону — 8 клітинок: коням якраз!';
-      else { type='warn'; html=`Загін закритий, панда в безпеці.<br>Але ширина загону — ${outW}, а коням треба 8. Які числа змінити?`; }
-    }else if(level===3){
-      const o=OUTLINES[3];
-      let ringOk=true;
-      for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++)
-        if((x===o.x0||x===o.x1||y===o.y0||y===o.y1)&&!W.fences.has(key(x,y))) ringOk=false;
-      const exact=ringOk&&a.bb.x0===o.x0+1&&a.bb.y0===o.y0+1&&a.bb.w===3&&a.bb.h===3&&a.pen.length===9;
-      if(exact) html='Точно за кресленням! 🎉 Загін готовий, панда в безпеці 🐼💚';
-      else { type='warn'; html='Загін закритий, панда в безпеці. Але він не збігається з кресленням — порівняйте з білим контуром!'; }
+    const cells=startCells(a.pen,a.start,LV[level].count);
+    cells.forEach(c=>spawnAnimal(c));
+    let win=true, type='ok', html=A.ok;
+    if(level===1&&!exactOutline(a)){ win=false; type='warn'; html='Загін закритий, але не по пунктиру. Перевір числа 🤔'; }
+    if(level===3){
+      if(!exactOutline(a)){ win=false; type='warn'; html='Загін закритий, але не по пунктиру 🤔'; }
+      else if(a.extras.length){
+        win=false; type='warn'; html='Майже! Жовтий паркан — зайвий 🤔';
+        marks=a.extras.map(c=>({x:c.x,y:c.y,c:'yel'})); renderMarks();
+      }
     }
-    if(a.extras.length){
-      marks=a.extras.map(c=>({x:c.x,y:c.y,c:'yel'})); renderMarks();
-      html+='<span class="yel">🟨 Цей паркан зайвий. Яку цифру змінити?</span>';
-    }
+    animals.forEach((an,i)=>{ for(let k=0;k<4;k++) hearts(an,700+k*700+i*300); });
+    wander(a.pen);
     showMsg(html,type);
+    if(win){
+      animalTimers.push(setTimeout(()=>{ sWin(); animals.forEach(an=>puff(an.x,an.y)); },600));
+      animalTimers.push(setTimeout(levelWon,2600));
+    }else sFail();
     return;
   }
-  // панда тікає через дірку
-  showMsg('Панда оглядається… 👀','info');
-  let i=1;
-  const walk=()=>{
-    if(i<a.path.length){
-      const c=a.path[i++]; setPanda(c);
-      if(c.x===a.hole.x&&c.y===a.hole.y){ marks=[{x:c.x,y:c.y,c:'red'}]; renderMarks(); }
-      pandaTimers.push(setTimeout(walk,450));
-    }else{
-      marks=[{x:a.hole.x,y:a.hole.y,c:'red'}]; renderMarks();
-      showMsg('Ой! Панда знайшла вихід тут 🔴<br>Яку команду треба змінити, щоб дірки не було?','err');
+  // дірка: тварини йдуть до виходу
+  const starts=a.pen?startCells(a.pen,a.start,LV[level].count):[a.start];
+  const walkers=starts.map(c=>{
+    const an=spawnAnimal(c); let p=pathOut(W.fences,c);
+    const hi=p.findIndex(q=>q.x===a.hole.x&&q.y===a.hole.y);
+    if(hi>=0) p=p.slice(0,Math.min(p.length,hi+4));
+    return {an,p,i:1,wait:0};
+  });
+  showMsg('Тварини оглядаються… 👀','info');
+  const step=()=>{
+    let moving=false;
+    walkers.forEach(w=>{
+      if(w.i<w.p.length){
+        const c=w.p[w.i++]; moving=true;
+        if(!animals.some(o=>o!==w.an&&o.x===c.x&&o.y===c.y)){ moveAnimal(w.an,c); w.wait=0; }
+        else if(++w.wait<3) w.i--;            // клітинка зайнята — трохи зачекати
+        else w.i=w.p.length;                  // друга тварина стоїть попереду — зупинитись
+        if(c.x===a.hole.x&&c.y===a.hole.y&&!marks.length){ marks=[{x:c.x,y:c.y,c:'red'}]; renderMarks(); }
+      }
+    });
+    if(moving) animalTimers.push(setTimeout(step,480));
+    else{
+      marks=[{x:a.hole.x,y:a.hole.y,c:'red'}]; renderMarks(); sFail();
+      showMsg(A.out+' 🔴','err');
     }
   };
-  pandaTimers.push(setTimeout(walk,1000));
+  animalTimers.push(setTimeout(step,1000));
 }
-$('pandaBtn').onclick=releasePanda;
+$('animalBtn').onclick=releaseAnimals;
+
+/* ================= перемога і вікна ================= */
+let modalGo=null;
+function showModal(title,text,goLabel,go,stay){
+  $('mTitle').textContent=title; $('mText').textContent=text; $('mGo').textContent=goLabel;
+  $('mStay').classList.toggle('hidden',!stay);
+  modalGo=go; $('modal').classList.remove('hidden');
+}
+function hideModal(){ $('modal').classList.add('hidden'); modalGo=null; }
+$('mGo').onclick=()=>{ const g=modalGo; hideModal(); if(g) g(); };
+$('mStay').onclick=hideModal;
+function levelWon(){
+  if(level===2&&breakIdx<2){
+    showModal('✔ Поломку виправлено!',`Поломка ${breakIdx+1} з 3 готова. Шукай наступну!`,'Наступна поломка →',
+      ()=>{ breakIdx++; loadLevel(2,true); },true);
+    return;
+  }
+  completed.add(level); renderProgress();
+  if(level===3){
+    showModal('🏆 Ферму збудовано!','Усі тварини в безпеці','Грати знову',
+      ()=>{ completed.clear(); breakIdx=0; loadLevel(0); },true);
+    return;
+  }
+  showModal('⭐ Рівень пройдено!','Молодець! Готовий до наступного рівня?','Далі ▶',()=>loadLevel(level+1),true);
+}
 
 /* ================= рівні ================= */
-function buildBreak(){
-  const p=lessonProgram();
-  if(breakIdx===0){ p[5].n=3; breakHintId=p[5].id; }                 // а) «ліворуч 3» замість 4 → дірка
-  else if(breakIdx===1){ breakHintId=p[5].id; p.splice(4,1); }       // б) немає «розмістити на ходу УВІМКН.»
-  else { breakHintId=p[4].id; p.splice(1,1); }                       // в) немає «постав блок або предмет»
-  program=p;
+function renderProgress(){
+  const p=$('prog'); p.innerHTML='';
+  LV.forEach((L,i)=>{
+    const d=document.createElement('div');
+    d.className='em'+(completed.has(i)?' done':'')+(i===level?' cur':'');
+    d.title=`Рівень ${i+1}: ${L.name}`; d.innerHTML=EMERALD;
+    d.onclick=()=>loadLevel(i);
+    p.appendChild(d);
+  });
 }
-function loadLevel(i){
-  stopRun(); closePopup();
-  level=i; hintIds.clear(); flashIds.clear(); answerMode=false; answerNote='';
-  if(i===0||i===1) program=lessonProgram();
-  else if(i===2) buildBreak();
-  else program=[B.tp()];
-  resetWorld(); hideMsg(); renderLevelUI(); renderProgram(); renderOutline();
-  wsScroll.scrollTop=0;
-}
-function renderLevelUI(){
+function renderTask(){
   const L=LV[level];
-  $('lvlTitle').innerHTML=`<small>Рівень ${level+1} з 4</small>«${L.name}»`;
+  $('lvlTitle').innerHTML=`Рівень ${level+1}: <span>${L.name}</span>`;
+  $('tTitle').textContent=L.title;
+  $('tSteps').innerHTML=L.steps.map((s,i)=>`<div class="step"><b>${i+1}</b><span>${esc(s)}</span></div>`).join('');
+  $('tCheck').textContent=L.check;
+  $('tBadge').textContent=level===2?`Поломка ${breakIdx+1} з 3`:'';
   $('prevBtn').disabled=level===0; $('nextBtn').disabled=level===LV.length-1;
-  $('qtext').textContent=L.q;
-  const sub=$('qsub');
-  if(answerNote){ sub.textContent=answerNote; sub.className='ans'; }
-  else {
-    sub.className='';
-    sub.textContent=level===2?`Поломка ${BREAK_NAMES[breakIdx]} з 3. Запустіть програму й подивіться, що зробить Агент.`:L.sub;
-  }
-  $('hintBtn').classList.toggle('hidden',level===0);
-  $('breakBtn').classList.toggle('hidden',level!==2);
-  $('breakBtn').textContent=`🔧 Наступна поломка (${BREAK_NAMES[(breakIdx+1)%3]})`;
+}
+function loadLevel(i,keepBreak){
+  stopRun(); closePopup(); hideModal(); disarmReset();
+  if(i===2&&!keepBreak) breakIdx=0;
+  level=i; hintIds.clear(); flashIds.clear(); flagged.clear(); answerMode=false; hintStep=0;
+  program=initialProgram(); initialSig=sig(program);
+  const L=LV[level];
+  $('sampleCol').classList.toggle('hidden',!L.sample);
+  $('wsHelp').classList.toggle('hidden',!!L.locked);
+  $('chatIn').value='';
+  renderTask(); renderProgress();
+  resetWorld(); hideMsg(); renderOutline();
+  renderPalette(); renderProgram();
+  wsScroll.scrollTop=0;
+  updateButtons();
 }
 $('prevBtn').onclick=()=>{ if(level>0) loadLevel(level-1); };
 $('nextBtn').onclick=()=>{ if(level<LV.length-1) loadLevel(level+1); };
-$('breakBtn').onclick=()=>{ breakIdx=(breakIdx+1)%3; loadLevel(2); };
 
 $('hintBtn').onclick=()=>{
   closePopup(); hintIds.clear();
   let text='';
-  if(level===1){
-    program.forEach(b=>{ if(b.type==='mv'&&(b.dir==='left'||b.dir==='right')&&b.n>=4) hintIds.add(b.id); });
-    text='💡 Підказка: ширину загону задають кроки ліворуч і праворуч.';
+  if(level===0){
+    const i=matchedPrefix();
+    if(i>=SAMPLE.length&&program.length===SAMPLE.length) text='💡 Усі блоки на місці! Запусти програму.';
+    else if(i<program.length) text='💡 Блок з червоною рамкою не збігається зі зразком.';
+    else text='💡 Знайди блок зі стрілкою 👉 і додай його.';
+    const e=sampleEls[i]; if(e){ e.classList.remove('pulse'); void e.offsetWidth; e.classList.add('pulse'); }
+  }else if(level===1){
+    text='💡 Пунктир ширший на 2 клітинки. Додай по 2 у блоках, що світяться.';
   }else if(level===2){
     if(program.some(b=>b.id===breakHintId)) hintIds.add(breakHintId);
-    text=[
-      '💡 Підказка: порівняйте числа. Чи однакові верхня і нижня сторони загону?',
-      '💡 Підказка: Агент іде, але не будує. Чого не вистачає перед цим блоком?',
-      '💡 Підказка: Агент хоче будувати. А з чого? Що має лежати в його інвентарі?'
-    ][breakIdx];
-  }else if(level===3){
-    text='💡 Підказка: порахуйте клітинки на кожній стороні контуру. І що потрібно Агенту, щоб будувати?';
+    text=['💡 Порівняй числа в цьому блоці зі зразком.',
+          '💡 Перед цим блоком чогось не вистачає.',
+          '💡 Агент хоче будувати. Що має бути в слоті 1?'][breakIdx];
+  }else{
+    text=hintStep===0?'💡 Спершу паркан у слот 1 і розміщення на ходу УВІМКН.':'💡 Кожна сторона — 4 кроки.';
+    hintStep=Math.min(1,hintStep+1);
   }
   renderProgram(); showMsg(text,'info');
 };
 
 $('answerBtn').onclick=()=>{
-  closePopup(); hintIds.clear(); flashIds.clear();
-  if(level===0){
-    program=lessonProgram();
-    answerNote='Відповідь: дивимось, що побудує Агент, і випускаємо панду!';
-  }else if(level===1){
-    const p=lessonProgram(); p[5].n=6; p[7].n=7; flashIds.add(p[5].id); flashIds.add(p[7].id); program=p;
-    answerNote='Відповідь: «ліворуч 4» → 6, «праворуч 5» → 7.';
+  closePopup(); hintIds.clear(); flashIds.clear(); flagged.clear();
+  if(level===0){ program=lessonProgram(); }
+  else if(level===1){
+    const p=initialProgram(); p[5].n=6; p[7].n=7; flashIds.add(p[5].id); flashIds.add(p[7].id); program=p;
   }else if(level===2){
-    const p=lessonProgram();
-    flashIds.add([p[5].id,p[4].id,p[1].id][breakIdx]); program=p;
-    answerNote=[
-      'Відповідь: у блоці «переміститися ліворуч» має бути 4, а не 3.',
-      'Відповідь: бракувало блоку «розмістити на ходу УВІМКН.»',
-      'Відповідь: бракувало блоку «постав блок або предмет паркан у слот 1».'
-    ][breakIdx];
+    const p=lessonProgram(); flashIds.add([p[5].id,p[4].id,p[1].id][breakIdx]); program=p;
   }else{
-    const p=[B.tp(),B.slot(1,1),B.mv('fwd',1),B.pl(true),B.mv('fwd',4),B.mv('right',4),B.mv('back',4),B.mv('left',4),B.pl(false)];
+    const t=B.tp(); t.fixed=true;
+    const p=[t,B.slot(1,1),B.mv('fwd',1),B.pl(true),B.mv('fwd',4),B.mv('right',4),B.mv('back',4),B.mv('left',4),B.pl(false)];
     p.slice(1).forEach(b=>flashIds.add(b.id)); program=p;
-    answerNote='Один із варіантів: вперед 1 → УВІМКН. → вперед 4 → праворуч 4 → назад 4 → ліворуч 4.';
   }
-  renderLevelUI(); renderProgram();
-  if(startRun(true)) answerMode=true;
+  renderProgram();
+  if(startRun()) answerMode=true;
 };
 
 /* ================= старт ================= */
-renderPalette();
 loadLevel(0);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ renderPalette(); renderProgram(); });
 })();
 </script>
 </body>
