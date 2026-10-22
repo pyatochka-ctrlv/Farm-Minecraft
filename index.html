@@ -6,22 +6,22 @@
 <title>Магічна ферма: агент будує загін</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tiny5&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{
-  --pix:"Tiny5","Segoe UI",Arial,sans-serif;
+  --pix:"Press Start 2P","Segoe UI",Arial,sans-serif;
   --mc:"Segoe UI","Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#1a120b}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;color:#fff;display:flex;flex-direction:column;
-  font-family:var(--pix);font-size:24px;font-synthesis:none;user-select:none;-webkit-user-select:none;overflow:hidden;
+  font-family:var(--pix);font-size:16px;line-height:1.45;font-synthesis:none;user-select:none;-webkit-user-select:none;overflow:hidden;
   background-color:#3b2a1c;background-size:96px 96px;image-rendering:pixelated}
 button{font-family:inherit}
 .hidden{display:none!important}
 
 /* ---------- кнопки в стилі меню Minecraft ---------- */
-.mcb{font-family:var(--pix);font-size:26px;font-weight:600;color:#fff;text-shadow:3px 3px 0 #3f3f3f;background:#7a7a7a;
+.mcb{font-family:var(--pix);font-size:18px;font-weight:600;color:#fff;text-shadow:3px 3px 0 #3f3f3f;background:#7a7a7a;
   border:3px solid #000;border-radius:0;box-shadow:inset 3px 3px 0 #b9b9b9,inset -3px -4px 0 #494949;
   padding:8px 22px 10px;cursor:pointer;white-space:nowrap;line-height:1.1}
 .mcb:hover:not(:disabled){color:#ffffa0;background:#878787}
@@ -31,19 +31,19 @@ button{font-family:inherit}
 .mcb.green:hover:not(:disabled){background:#479a30}
 .mcb.green:active:not(:disabled){box-shadow:inset 3px 4px 0 #1d4d12,inset -3px -3px 0 #5fb83a}
 .mcb.green:disabled{background:#3f5a36;box-shadow:inset 3px 3px 0 #587a4c,inset -3px -4px 0 #263a20}
-.mcb.small{font-size:20px;padding:5px 12px 7px}
-.mcb.big{font-size:32px;padding:10px 26px 12px}
+.mcb.small{font-size:13px;padding:7px 12px 8px}
+.mcb.big{font-size:22px;padding:13px 24px 14px}
 .mcb.armed{background:#a33a2a;box-shadow:inset 3px 3px 0 #d8705e,inset -3px -4px 0 #5a1a10}
 
 /* ---------- панелі як GUI Minecraft ---------- */
 .gui{background:#c6c6c6;border:4px solid #000;box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #555;color:#3f3f3f}
-.ghead{font-size:28px;color:#3f3f3f;padding:8px 14px 4px}
+.ghead{font-size:18px;color:#3f3f3f;padding:8px 14px 4px}
 
 /* ---------- верхня панель ---------- */
 #topbar{height:76px;flex:none;display:flex;align-items:center;gap:16px;padding:0 14px;background:#2b2b2b;
   border-bottom:4px solid #000;box-shadow:inset 0 -4px 0 #555,inset 0 4px 0 #6a6a6a}
-.brand{font-size:30px;font-weight:700;color:#7fe05a;text-shadow:3px 3px 0 #1b4a10;white-space:nowrap}
-#lvlTitle{font-size:30px;font-weight:700;text-shadow:3px 3px 0 #3f3f3f;white-space:nowrap;margin-left:10px}
+.brand{font-size:18px;font-weight:700;color:#7fe05a;text-shadow:3px 3px 0 #1b4a10;white-space:nowrap}
+#lvlTitle{font-size:18px;font-weight:700;text-shadow:3px 3px 0 #3f3f3f;white-space:nowrap;margin-left:10px}
 #lvlTitle span{color:#ffd84a}
 #prog{display:flex;gap:10px;margin-left:16px}
 .em{width:46px;height:46px;cursor:pointer;filter:grayscale(1) brightness(.55);transition:filter .3s,transform .3s}
@@ -62,25 +62,26 @@ button{font-family:inherit}
 #task{display:flex;gap:18px;background:#f4e4b6;color:#2c1d0c;padding:10px 20px 12px;border:4px solid #5b3a18;
   box-shadow:inset 0 0 0 3px #e2cb8e;min-height:168px}
 #tMain{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
-#tTitle{font-size:34px;font-weight:700;line-height:1.15}
+#tTitle{font-size:22px;line-height:1.5}
 #tSteps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.step{display:flex;gap:10px;align-items:flex-start;font-size:28px;line-height:1.2;font-weight:500}
+.step{display:flex;gap:10px;align-items:flex-start;font-size:17px;line-height:1.5}
 .step b{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#7a4f26;color:#fff;
-  border:3px solid #2c1d0c;font-size:24px;margin-top:-2px}
-#tCheck{font-size:28px;font-weight:600;color:#245c12;line-height:1.2}
+  border:3px solid #2c1d0c;font-size:16px;margin-top:-2px}
+#tCheck{font-size:17px;color:#245c12;line-height:1.5}
 #gBox{display:flex;flex-direction:column;gap:6px}
-#gTrack{display:flex;align-items:center;gap:8px;font-size:24px}
+#gTrack{display:flex;align-items:center;gap:8px;font-size:14px}
 .gst{display:flex;align-items:center;gap:8px;padding:4px 12px 6px;border:3px solid #a07a48;background:#ead6a0;color:#8a6a3c;transition:transform .2s}
 .gst b{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#b08850;color:#fff;border:2px solid #5b3a18;font-weight:normal}
 .gst.cur{background:#ffd84a;color:#2c1d0c;border-color:#2c1d0c;transform:scale(1.07)}
 .gst.cur b{background:#d83b01}
 .gst.done{background:#c6e6ae;color:#245c12;border-color:#245c12}
 .gst.done b{background:#3c8527}
-.garr{color:#7a4f26;font-size:26px}
-#gQ{font-size:36px;line-height:1.15;margin-top:6px}
-#gA{font-size:30px;line-height:1.15;color:#245c12;min-height:34px}
+.garr{color:#7a4f26;font-size:18px}
+#gQ{font-size:23px;line-height:1.55;margin-top:8px}
+#gSub{font-size:15px;line-height:1.5;color:#6b4a1e}
+#gA{font-size:18px;line-height:1.55;color:#245c12;min-height:28px}
 #gCtl{display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:center;height:100%}
-#gCtl .mcb.big{font-size:34px;padding:14px 28px 16px}
+#gCtl .mcb.big{font-size:20px;padding:16px 22px 17px}
 .gsmall{display:flex;gap:8px}
 .gsmall .mcb{flex:1}
 .choice{display:flex;align-items:center;justify-content:center;font-family:var(--pix);font-size:30px;color:#fff;text-shadow:2px 2px 0 #000;
@@ -89,6 +90,34 @@ button{font-family:inherit}
 .lA{background:#d63a2f}.lB{background:#1f6fd1}.lC{background:#b8860b}
 .choice.cA{background:rgba(214,58,47,.88)}.choice.cB{background:rgba(31,111,209,.88)}.choice.cC{background:rgba(184,134,11,.92)}
 .choice{font-family:var(--mc);font-weight:800}
+.choice{pointer-events:auto;cursor:pointer}
+#gCards{position:absolute;right:16px;top:16px;bottom:16px;width:520px;display:flex;flex-direction:column;gap:14px;z-index:60;overflow:auto}
+#gCards .ghd{font-size:16px;color:#ffe680;text-shadow:2px 2px 0 #000}
+.gcard{position:relative;display:flex;align-items:center;gap:14px;padding:12px 14px;background:#c6c6c6;border:4px solid #000;
+  box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #555;cursor:pointer;color:#2c2c2c;transition:opacity .2s}
+.gcard:hover{box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #555,0 0 0 4px #ffe31a}
+.gcard .lt{font-size:28px;flex:none}
+.gcard .gtxt{font-size:18px;line-height:1.5}
+.gcard .bhold{position:relative;flex:none}
+.gcard .why{display:none;font-size:13px;line-height:1.5;color:#a01d12;margin-top:6px}
+.gcard .gbody{display:flex;flex-direction:column}
+.gcard.wrong{opacity:.55;border-color:#b3261e;animation:shake .5s ease}
+.gcard.wrong .why{display:block}
+.gcard.right{border-color:#2e8b3e;box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #555,0 0 0 5px #5fd33a}
+.gcard.dim{opacity:.35}
+.gcard.picked{box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #555,0 0 0 5px #4aa3ff}
+.gcard.lock{cursor:default}
+.blk.pend .bsvg path{stroke:#fff;stroke-width:4;stroke-dasharray:9 6;animation:dash 1s linear infinite}
+.blk.pend::after{content:"?";position:absolute;right:-40px;top:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--pix);font-size:18px;color:#fff;background:#1f6fd1;border:3px solid #000}
+.stepnum{position:absolute;width:40px;height:40px;display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 3px;font-family:var(--mc);
+  font-weight:800;font-size:15px;color:#fff;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;z-index:4;pointer-events:none}
+.stepnum span{background:#1f6fd1;border:2px solid #000;padding:0 4px;line-height:1.3}
+.tag{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:-2px;font-family:var(--mc);font-weight:700;font-size:12px;
+  background:rgba(0,0,0,.7);color:#fff;padding:0 5px;white-space:nowrap;pointer-events:none}
+#chatLine{position:absolute;left:10px;bottom:12px;z-index:31;background:rgba(0,0,0,.6);color:#fff;font-size:18px;padding:8px 12px 6px;
+  text-shadow:2px 2px 0 #3f3f3f;transition:opacity .6s}
+#chatLine.off{opacity:0}
 .choice.ok{background:rgba(60,170,40,.92);animation:none;box-shadow:0 0 18px #7CFC00}
 .choice.no{opacity:.22;animation:none}
 .slot.pulse,.pill.pulse{animation:hl .6s ease-in-out infinite alternate}
@@ -96,12 +125,12 @@ button{font-family:inherit}
 .mbox.wide{width:1260px}
 .memo{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 26px;text-align:center}
 .memo .mc{background:#8b8b8b;border:3px solid;border-color:#373737 #fff #fff #373737;padding:12px 10px;color:#fff;text-shadow:2px 2px 0 #333}
-.memo .mh{font-size:28px;margin-bottom:8px}
+.memo .mh{font-size:15px;line-height:1.5;margin-bottom:8px}
 .memo .mb{font-family:var(--mc);font-weight:600;font-size:17px;color:#fff;background:#D83B01;border-radius:6px;padding:8px;margin:6px 0;text-shadow:none}
 .memo .mb.ev{background:#0078D7}
-.memo .mt{font-size:24px;margin-top:8px;color:#ffffa0}
+.memo .mt{font-size:13px;line-height:1.5;margin-top:8px;color:#ffffa0}
 #tSide{flex:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px}
-#tBadge{font-size:26px;font-weight:700;background:#7a4f26;color:#fff;padding:6px 14px;border:3px solid #2c1d0c}
+#tBadge{font-size:15px;font-weight:700;background:#7a4f26;color:#fff;padding:6px 14px;border:3px solid #2c1d0c}
 #tBadge:empty{display:none}
 
 /* ---------- основна частина ---------- */
@@ -116,7 +145,7 @@ button{font-family:inherit}
 #palStrip{flex:none;position:relative;background:#2e3034;border:4px solid #000;box-shadow:inset 3px 3px 0 #4a4d52,inset -3px -3px 0 #1a1b1d}
 #palInner{position:relative}
 #trashHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:14px;background:rgba(140,25,25,.92);
-  font-size:30px;font-weight:700;z-index:40}
+  font-size:20px;z-index:40}
 #palStrip.trash #trashHint{display:flex}
 #ws{flex:1;min-width:0;position:relative;background:#333;border:4px solid #000;min-height:0}
 #wsScroll{position:absolute;inset:0;overflow:auto}
@@ -189,9 +218,9 @@ button{font-family:inherit}
 /* ---------- спливаючі редактори ---------- */
 .popup{position:absolute;z-index:900;padding:14px}
 .numrow{display:flex;align-items:center;gap:14px;justify-content:center}
-.nval{font-size:58px;font-weight:700;min-width:90px;text-align:center;color:#3f3f3f}
+.nval{font-size:40px;font-weight:700;min-width:90px;text-align:center;color:#3f3f3f}
 .quick{display:grid;grid-template-columns:repeat(5,56px);gap:8px;margin-top:12px;justify-content:center}
-.quick .mcb{padding:6px 0;font-size:26px}
+.quick .mcb{padding:8px 0;font-size:18px}
 .quick .mcb.cur{background:#3c8527}
 .popup .okb{display:block;width:100%;margin-top:12px}
 .dropopt{display:flex !important;align-items:center;gap:14px;width:300px;margin:6px 0;text-align:left}
@@ -231,44 +260,44 @@ button{font-family:inherit}
 #bubble{position:absolute;left:50%;bottom:96%;transform:translateX(-50%);background:#c6c6c6;border:2px solid #000;padding:2px;display:none;white-space:nowrap}
 #bubble svg{width:24px;height:24px;display:block;filter:none}
 #bubble.on{display:block}
-#bubble.err{background:#c62828;color:#fff;font-size:18px;font-weight:700;padding:0 6px}
+#bubble.err{font-family:var(--mc);background:#c62828;color:#fff;font-size:15px;font-weight:700;padding:0 6px}
 .heart{position:absolute;font-size:30px;color:#ff4f7b;text-shadow:0 2px 0 #8b1538;animation:heart 1.7s ease-out forwards;z-index:20;font-family:var(--mc)}
 @keyframes heart{0%{transform:translateY(0) scale(.4);opacity:0}20%{opacity:1}100%{transform:translateY(-80px) scale(1.25);opacity:0}}
 .pt{position:absolute;width:6px;height:6px;z-index:9;animation:pt .55s ease-out forwards}
 @keyframes pt{to{transform:translate(var(--dx),var(--dy));opacity:0}}
 .puff{position:absolute;width:12px;height:12px;background:#f2f2f2;z-index:21;animation:puff .9s ease-out forwards}
 @keyframes puff{0%{transform:translate(0,0) scale(.4);opacity:.95}100%{transform:translate(var(--dx),var(--dy)) scale(1.6);opacity:0}}
-#msg{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;padding:12px 54px 14px 18px;font-size:27px;font-weight:600;line-height:1.25;
+#msg{position:absolute;left:10px;right:10px;bottom:10px;z-index:30;padding:12px 54px 14px 18px;font-size:17px;line-height:1.6;
   background:rgba(16,16,16,.86);border:4px solid #000;border-left:12px solid #4aa3ff;color:#fff;text-shadow:2px 2px 0 #000}
 #msg.ok{border-left-color:#5fd33a}
 #msg.warn{border-left-color:#ffc83d}
 #msg.err{border-left-color:#ff4040}
 #msg .yel{display:block;color:#ffe45c;margin-top:4px}
-#msgClose{position:absolute;right:8px;top:8px;width:36px;height:36px;padding:0;font-size:20px}
-#agentPanel{width:150px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 8px;text-align:center}
-#agentPanel .lab{font-size:24px;font-weight:700;line-height:1.1;color:#3f3f3f}
+#msgClose{position:absolute;right:8px;top:8px;width:36px;height:36px;padding:0;font-size:14px}
+#agentPanel{width:150px;padding-left:6px!important;padding-right:6px!important;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 8px;text-align:center}
+#agentPanel .lab{font-size:12px;line-height:1.5;color:#3f3f3f}
 .robotBig{width:92px;height:92px;background:#8b8b8b;border:3px solid;border-color:#373737 #fff #fff #373737;padding:6px}
 .slot{position:relative;width:88px;height:88px;margin:6px auto 0;background:#8b8b8b;border:4px solid;border-color:#373737 #fff #fff #373737;
   display:flex;align-items:center;justify-content:center}
 .slot svg{width:60px;height:60px;display:block}
-.slot .cnt{position:absolute;right:4px;bottom:0;font-size:28px;font-weight:700;color:#fff;text-shadow:3px 3px 0 #3f3f3f}
-.pill{display:inline-block;margin-top:8px;padding:6px 10px 8px;font-size:24px;font-weight:700;color:#fff;border:3px solid #000;text-shadow:2px 2px 0 #333}
+.slot .cnt{position:absolute;right:4px;bottom:2px;font-size:18px;font-weight:700;color:#fff;text-shadow:3px 3px 0 #3f3f3f}
+.pill{display:inline-block;margin-top:8px;padding:8px 8px 8px;font-size:14px;color:#fff;border:3px solid #000;text-shadow:2px 2px 0 #333}
 .pill.on{background:#3c8527;box-shadow:inset 2px 2px 0 #6dc449,inset -2px -3px 0 #1d4d12}
 .pill.off{background:#6b6b6b;box-shadow:inset 2px 2px 0 #9a9a9a,inset -2px -3px 0 #3c3c3c}
 .row{flex:none;display:flex;align-items:center;gap:12px;height:62px}
 #chatBar{flex:1;height:62px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.62);border:3px solid rgba(0,0,0,.8);padding:0 14px;transition:background .2s}
 #chatBar.flash{background:rgba(60,133,39,.7)}
-#chatBar span{color:#bdbdbd;font-size:26px;font-weight:600}
-#chatIn{flex:1;font-family:var(--pix);font-size:30px;font-weight:600;background:transparent;border:none;color:#fff;outline:none;text-shadow:2px 2px 0 #3f3f3f}
-#chatIn::placeholder{color:#8a8a8a;text-shadow:none;font-size:24px}
+#chatBar span{color:#bdbdbd;font-size:16px}
+#chatIn{flex:1;font-family:var(--pix);font-size:20px;font-weight:600;background:transparent;border:none;color:#fff;outline:none;text-shadow:2px 2px 0 #3f3f3f}
+#chatIn::placeholder{color:#8a8a8a;text-shadow:none;font-size:13px}
 #resetBtn,#animalBtn{flex:1}
 
 /* ---------- вікно завершення ---------- */
 #modal{position:absolute;inset:0;z-index:2000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
 .mbox{width:820px;padding:34px 40px 30px;text-align:center;animation:mpop .35s ease-out}
 @keyframes mpop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
-#mTitle{font-size:52px;font-weight:700;color:#3f3f3f}
-#mText{font-size:30px;margin:14px 0 26px;color:#3f3f3f}
+#mTitle{font-size:30px;line-height:1.5;font-weight:700;color:#3f3f3f}
+#mText{font-size:18px;line-height:1.6;margin:14px 0 26px;color:#3f3f3f}
 .mbtns{display:flex;gap:18px;justify-content:center;align-items:center}
 </style>
 </head>
@@ -285,7 +314,7 @@ button{font-family:inherit}
   </div>
 
   <div id="taskWrap"><div id="task">
-    <div id="tMain"><div id="tTitle"></div><div id="tSteps"></div><div id="tCheck"></div><div id="gBox" class="hidden"><div id="gTrack"></div><div id="gQ"></div><div id="gA"></div></div></div>
+    <div id="tMain"><div id="tTitle"></div><div id="tSteps"></div><div id="tCheck"></div><div id="gBox" class="hidden"><div id="gTrack"></div><div id="gQ"></div><div id="gSub"></div><div id="gA"></div></div></div>
     <div id="tSide"><div id="tBadge"></div><button id="hintBtn" class="mcb">💡 Підказка</button><div id="gCtl" class="hidden"><button id="gMain" class="mcb green big">Перевіряємо! ✔</button><div class="gsmall"><button id="gBack" class="mcb small">◀ Крок назад</button><button id="gRestart" class="mcb small">↺ Спочатку</button></div></div></div>
   </div></div>
 
@@ -299,6 +328,7 @@ button{font-family:inherit}
         </div>
         <div id="ws">
           <div id="wsScroll"><div id="wsInner"></div></div>
+          <div id="gCards" class="hidden"></div>
           <div id="wsHelp">Перетягуй блоки. Наведи мишу на блок: ↑ ↓ ✕</div>
         </div>
       </div>
@@ -312,11 +342,12 @@ button{font-family:inherit}
             <div id="outlineL" class="layer"></div>
             <div id="fenceL" class="layer"></div>
             <div id="markL" class="layer"></div>
-            <div id="player" class="spr"><div class="body"></div></div>
-            <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div></div>
+            <div id="player" class="spr"><div class="body"></div><div class="tag">Гравець</div></div>
+            <div id="agent" class="spr"><div id="bubble"></div><div class="body"></div><div class="tag">Агент</div></div>
             <div id="animalsL" class="layer"></div>
             <div id="choiceL" class="layer"></div>
             <div id="fxL" class="layer"></div>
+            <div id="chatLine" class="off"></div>
             <div id="msg" class="hidden"><div id="msgText"></div><button id="msgClose" class="mcb small" title="Закрити">✕</button></div>
           </div>
         </div>
@@ -327,7 +358,7 @@ button{font-family:inherit}
           <div><div class="lab">Розміщення<br>на ходу</div><div class="pill off" id="placePill">ВИМКН.</div></div>
         </div>
       </div>
-      <div class="row">
+      <div class="row" id="chatRow">
         <div id="chatBar"><span>Чат:</span><input id="chatIn" type="text" placeholder="напиши 1 і натисни Enter" autocomplete="off" maxlength="20"></div>
         <button id="runBtn" class="mcb green big">▶ Запустити</button>
       </div>
@@ -666,6 +697,7 @@ function renderProgram(){
     if(hintIds.has(b.id)) e.classList.add('hint');
     if(flashIds.has(b.id)) e.classList.add('flash');
     if(flagged.has(b.id)) e.classList.add('wrong');
+    if(pendIds.has(b.id)) e.classList.add('pend');
     if(b.edit&&b.edit.length) e.classList.add('glow');
     if(runId===b.id) e.classList.add('run');
   });
@@ -959,7 +991,7 @@ function renderWorld(){
 }
 function renderOutline(){
   const L=$('outlineL'); L.innerHTML='';
-  const o=LV[level].outline; if(!o) return;
+  const o=LV[level].guided?(gi>=2?PEN:null):LV[level].outline; if(!o) return;
   for(let y=o.y0;y<=o.y1;y++) for(let x=o.x0;x<=o.x1;x++){
     if(x!==o.x0&&x!==o.x1&&y!==o.y0&&y!==o.y1) continue;
     const d=document.createElement('div'); d.className='cellE ol'; d.style.left=x*CELL+'px'; d.style.top=y*CELL+'px'; L.appendChild(d);
@@ -1344,8 +1376,9 @@ function loadLevel(i,keepBreak){
   $('wsHelp').classList.toggle('hidden',!!L.locked);
   $('chatIn').value=''; $('chatIn').readOnly=!!L.guided;
   gStop();
-  ['tTitle','tSteps','tCheck','hintBtn','runBtn','btnRow','answerBtn'].forEach(id=>$(id).classList.toggle('hidden',!!L.guided));
+  ['tTitle','tSteps','tCheck','hintBtn','chatRow','btnRow','answerBtn'].forEach(id=>$(id).classList.toggle('hidden',!!L.guided));
   ['gBox','gCtl'].forEach(id=>$(id).classList.toggle('hidden',!L.guided));
+  if(!L.guided) $('gCards').classList.add('hidden');
   renderTask(); renderProgress();
   resetWorld(); hideMsg(); renderOutline();
   renderPalette(); renderProgram();
@@ -1397,75 +1430,118 @@ $('answerBtn').onclick=()=>{
 
 /* ================= рівень 1: як агент будує загін (покроково) ================= */
 const STAGES=['Покликати агента','Дати паркан','Показати шлях','Випустити тваринку'];
+const PEN={x0:4,y0:5,x1:9,y1:10};
+const LETTERS=['А','Б','В'];
 const lk=arr=>{ arr.forEach(b=>b.lock=true); return arr; };
 const G=[
-  {stage:0, chat:true, add:()=>lk([B.tp()]),
-   q:'Агент далеко 🤖 Як покликати його до нас?',
-   a:'Пишемо в чат 1 — і агент телепортується до гравця!'},
-  {stage:1, pulse:'slot', add:()=>lk([B.slot(1,1)]),
-   q:'З чого агент буде будувати? Подивіться в його інвентар 👀',
+  {stage:0, kind:'cmd', chat:true,
+   q:'Агент далеко! Яка команда покличе його до нас?',
+   cards:[{b:()=>B.mv('fwd',1), why:'Агент зробить лише 1 крок. А він далеко!'},
+          {b:()=>B.tp(), ok:true},
+          {b:()=>B.pl(true), why:'Це вмикає будування. А агент ще далеко!'}],
+   a:'Телепортуватися до гравця! Пишемо в чат 1 — і агент уже біля нас.'},
+  {stage:1, kind:'cmd', pulse:'slot',
+   q:'З чого агент буде будувати? Яка команда дасть йому паркан?',
+   cards:[{b:()=>B.tp(), why:'Агент уже біля нас. А паркану в нього все ще немає.'},
+          {b:()=>B.mv('fwd',3), why:'Агент піде, але в інвентарі порожньо.'},
+          {b:()=>B.slot(1,1), ok:true}],
    a:'Кладемо паркан у слот 1. Тепер агенту є з чого будувати!'},
-  {stage:2, add:()=>lk([B.mv('fwd',3),B.mv('right',1)]),
-   choices:[{x:6,y:5,l:'А'},{x:7,y:5,l:'Б'},{x:8,y:5,l:'В',ok:true}],
-   q:'Спершу агент іде до кута загону. Куди він прийде: {А}, {Б} чи {В}?',
-   a:'{В}! Вперед на 3 клітинки, потім праворуч на 1.'},
-  {stage:2, pulse:'pill', add:()=>lk([B.pl(true)]),
-   q:'Вмикаємо розміщення на ходу. Що з’явиться під агентом?',
-   a:'Паркан! Тепер агент ставить паркан у кожній клітинці, де стоїть.'},
-  {stage:2, add:()=>lk([B.mv('left',4)]),
-   q:'Агент іде ліворуч на 4. Скільки нових блоків паркану з’явиться?',
-   a:'4 нові блоки! Перша сторона загону готова.'},
-  {stage:2, add:()=>lk([B.mv('back',5)]),
-   choices:[{x:4,y:0,l:'А'},{x:4,y:10,l:'Б',ok:true},{x:4,y:11,l:'В'}],
-   q:'Тепер назад на 5. Де опиниться агент: {А}, {Б} чи {В}?',
-   a:'{Б}! Назад — це вниз, рівно на 5 клітинок.'},
-  {stage:2, add:()=>lk([B.mv('right',5)]),
-   q:'Праворуч на 5. Яку сторону загону збудує агент?',
-   a:'Нижню сторону! Залишилась остання.'},
-  {stage:2, add:()=>lk([B.mv('fwd',6)]),
-   q:'Вперед на 6. Як думаєте, загін замкнеться?',
-   a:'Так! Остання сторона готова — загін замкнувся.'},
-  {stage:2, pulse:'pill', add:()=>lk([B.pl(false)]),
-   q:'Загін готовий. Як сказати агенту, щоб він перестав будувати?',
-   a:'Вимикаємо розміщення на ходу — і агент більше нічого не ставить.'},
-  {stage:3, panda:true,
-   q:'Як думаєте, панда залишиться в загоні? 👍 чи 👎',
+  {stage:2, kind:'map', add:()=>[B.mv('fwd',3),B.mv('right',1)],
+   q:'Агент піде вперед на 3, потім праворуч на 1. Де він опиниться?',
+   sub:'Білий пунктир — тут буде загін. Натисніть на літеру.',
+   choices:[{x:6,y:5},{x:7,y:5},{x:8,y:5,ok:true}],
+   a:'В! Агент у кутку майбутнього загону.'},
+  {stage:2, kind:'cmd', pulse:'pill',
+   q:'Що скажемо агенту, щоб він почав ставити паркан?',
+   cards:[{b:()=>B.mv('left',4), why:'Агент піде, але нічого не поставить.'},
+          {b:()=>B.pl(true), ok:true},
+          {b:()=>B.pl(false), why:'ВИМКН. — це щоб зупинити будування.'}],
+   a:'Розміщення на ходу УВІМКН.! Паркан з’явився прямо під агентом.'},
+  {stage:2, kind:'opt', add:()=>[B.mv('left',4)],
+   q:'Агент піде ліворуч на 4. Скільки нових блоків паркану з’явиться?',
+   opts:['3 блоки','4 блоки','5 блоків'], ok:1,
+   a:'4 нові блоки! Один крок — один блок паркану.'},
+  {stage:2, kind:'map', add:()=>[B.mv('back',5)],
+   q:'Агент піде назад на 5. Де він опиниться?',
+   sub:'Назад — це вниз. Натисніть на літеру.',
+   choices:[{x:4,y:0},{x:4,y:10,ok:true},{x:4,y:11}],
+   a:'Б! Рівно 5 клітинок униз.'},
+  {stage:2, kind:'opt', add:()=>[B.mv('right',5)],
+   q:'Агент піде праворуч на 5. Яку сторону загону він збудує?',
+   opts:['Верхню','Нижню','Ліву'], ok:1,
+   a:'Нижню! Залишилась остання сторона.'},
+  {stage:2, kind:'opt', add:()=>[B.mv('fwd',6)],
+   q:'Агент піде вперед на 6. Загін замкнеться?',
+   opts:['👍 Так','👎 Ні'], ok:0,
+   a:'Так, загін замкнувся! А один блок вийшов зайвий — бачите де?'},
+  {stage:2, kind:'cmd', pulse:'pill',
+   q:'Загін готовий. Яка команда зупинить будування?',
+   cards:[{b:()=>B.pl(true), why:'Розміщення вже увімкнене!'},
+          {b:()=>B.tp(), why:'Агент стрибне до гравця і поставить паркан і там!'},
+          {b:()=>B.pl(false), ok:true}],
+   a:'Розміщення на ходу ВИМКН. Агент більше нічого не ставить.'},
+  {stage:3, kind:'opt', panda:true,
+   q:'Як думаєте, панда залишиться в загоні?',
+   opts:['👍 Так','👎 Ні'], ok:0,
    a:'Залишилась! Загін закритий — панда в безпеці 💚'},
-  {stage:4, trap:'slot',
-   q:'🧠 А що буде, якщо забути дати агенту паркан?',
-   a:'Агент іде, але паркану немає — панда тікає! Етап 2 дуже важливий.'},
-  {stage:4, trap:'pl',
-   q:'🧠 А якщо не увімкнути розміщення на ходу?',
+  {stage:4, kind:'opt', trap:'slot',
+   q:'А що буде, якщо забути дати агенту паркан?',
+   opts:['Агент збудує загін','Агент піде, а паркану не буде','Агент не зрушить з місця'], ok:1,
+   a:'Паркану немає — панда тікає! Етап 2 дуже важливий.'},
+  {stage:4, kind:'opt', trap:'pl',
+   q:'А якщо не увімкнути розміщення на ходу?',
+   opts:['Буде тільки один блок','Агент просто погуляє','Агент збудує загін'], ok:1,
    a:'Агент просто гуляє — паркан не з’являється. Етап 3 теж потрібен!'}
 ];
-let gi=0, gState='ask', gBusy=false, gTimers=[];
-function gStop(){ gTimers.forEach(clearTimeout); gTimers=[]; gBusy=false; setRunHL(null); }
+let gi=0, gState='ask', gBusy=false, gTimers=[], gPicked=null, gWrong=new Set(), gBl=null;
+const pendIds=new Set();
+function gStop(){ gTimers.forEach(clearTimeout); gTimers=[]; gBusy=false; setRunHL(null); pendIds.clear(); }
 const gLater=(f,ms)=>gTimers.push(setTimeout(f,ms));
 const compileOf=blocks=>{ const st=[]; blocks.forEach(b=>{ if(b.type==='mv') for(let k=0;k<b.n;k++) st.push({b,k}); else st.push({b}); }); return st; };
+const badge=l=>`<span class="lt l${'ABC'[LETTERS.indexOf(l)]}">${l}</span>`;
+const okIndex=st=>st.kind==='cmd'?st.cards.findIndex(c=>c.ok):st.kind==='map'?st.choices.findIndex(c=>c.ok):st.ok;
+function clearStepNums(){ document.querySelectorAll('#fxL .stepnum').forEach(e=>e.remove()); }
 function playBlocks(blocks,ms,done){
-  const st=compileOf(blocks); let i=0;
+  const st=compileOf(blocks); let i=0, cur=null;
   const tick=()=>{
     if(i>=st.length){ setRunHL(null); done(); return; }
-    const s=st[i++]; setRunHL(s.b.id); exec(s); gLater(tick,ms);
+    const s=st[i++];
+    if(s.b!==cur){ cur=s.b; clearStepNums(); }
+    setRunHL(s.b.id); exec(s);
+    if(s.b.type==='mv'){
+      const d=document.createElement('div'); d.className='stepnum';
+      d.style.left=W.agent.x*CELL+'px'; d.style.top=W.agent.y*CELL+'px'; d.innerHTML=`<span>${s.k+1}</span>`;
+      $('fxL').appendChild(d);
+    }
+    gLater(tick,ms);
   };
   gLater(tick,400);
 }
-function typeChat(cb){
-  const ci=$('chatIn'), bar=$('chatBar'); ci.value='';
-  gLater(()=>{ ci.value='1'; sClick(); bar.classList.add('flash'); },300);
-  gLater(()=>{ bar.classList.remove('flash'); ci.value=''; cb(); },1000);
+// рядок чату в стилі гри замість поля вводу
+function chatSay(cb){
+  const c=$('chatLine'); c.textContent='<Гравець> 1'; c.classList.remove('off'); sClick();
+  gLater(()=>c.classList.add('off'),3500);
+  gLater(cb,900);
 }
-// стан світу і програми після кроків 0..idx-1 (миттєво, без ефектів)
 function gRebuild(idx){
   clearAnimals(); hideMsg();
   W.silent=true; resetWorld(); program=[];
-  for(let j=0;j<idx;j++){ if(!G[j].add) continue; const bl=G[j].add(); program.push(...bl); compileOf(bl).forEach(exec); }
+  for(let j=0;j<idx;j++){
+    const st=G[j]; let bl=null;
+    if(st.kind==='cmd') bl=lk([st.cards.find(c=>c.ok).b()]);
+    else if(st.add) bl=lk(st.add());
+    if(bl){ program.push(...bl); compileOf(bl).forEach(exec); }
+  }
   W.silent=false; W.teleported=false; renderWorld();
-  flashIds.clear(); renderProgram();
+  flashIds.clear();
 }
 function gGo(idx){
-  gStop(); gi=idx; gState='ask';
-  gRebuild(idx); renderGuided();
+  gStop(); gi=idx; gState='ask'; gPicked=null; gWrong.clear(); gBl=null;
+  $('chatLine').classList.add('off');
+  gRebuild(idx);
+  const st=G[gi];
+  if(st.add){ gBl=lk(st.add()); program.push(...gBl); gBl.forEach(b=>pendIds.add(b.id)); }
+  renderProgram(); renderOutline(); renderGuided();
 }
 function renderGuided(){
   const st=G[gi];
@@ -1475,22 +1551,62 @@ function renderGuided(){
     `<div class="gst${isDone(i)?' done':''}${i===st.stage?' cur':''}"><b>${isDone(i)?'✔':i+1}</b>${n}</div>`
   ).join('<span class="garr">→</span>');
   $('tBadge').textContent=st.trap?'🧠 Перевірка':`Крок ${gi+1} з ${G.length}`;
-  const badges=t=>esc(t).replace(/\{([АБВ])\}/g,(m,l)=>`<span class="lt l${'АБВ'.indexOf(l)===0?'A':'АБВ'.indexOf(l)===1?'B':'C'}">${l}</span>`);
-  $('gQ').innerHTML=badges(st.q);
-  $('gA').innerHTML=gState==='done'?'✅ '+badges(st.a):'';
+  $('gQ').textContent=st.q;
+  $('gSub').textContent=st.sub||'';
+  let ans='';
+  if(gState==='done'){
+    const v=gPicked==null||st.kind==='cmd'?'':gPicked===okIndex(st)?'🎉 Правильно! ':'🙂 Не зовсім. ';
+    ans='✅ '+v+esc(st.a).replace(/^([АБВ])!/,(m,l)=>badge(l)+'!');
+  }
+  $('gA').innerHTML=ans;
   const m=$('gMain');
-  m.textContent=gBusy?'⏳ Дивимось…':gState==='ask'?'Перевіряємо! ✔':gi<G.length-1?'Далі ▶':'📋 Схема';
+  m.textContent=gBusy?'⏳ Дивимось…':gState==='ask'?'Показати відповідь':gi<G.length-1?'Далі ▶':'📋 Схема';
   m.disabled=gBusy;
   $('gBack').disabled=gBusy||(gi===0&&gState==='ask');
   $('gRestart').disabled=gBusy;
+  // літери на карті
   const L=$('choiceL'); L.innerHTML='';
-  (st.choices||[]).forEach(c=>{
+  if(st.kind==='map') st.choices.forEach((c,i)=>{
     const d=document.createElement('div');
-    d.className='cellE choice c'+['A','B','C']['АБВ'.indexOf(c.l)]+(gState==='done'?(c.ok?' ok':' no'):'');
-    d.style.left=c.x*CELL+'px'; d.style.top=c.y*CELL+'px'; d.textContent=c.l; L.appendChild(d);
+    d.className='cellE choice c'+'ABC'[i]+(gState==='done'?(c.ok?' ok':' no'):'');
+    d.style.left=c.x*CELL+'px'; d.style.top=c.y*CELL+'px'; d.textContent=LETTERS[i];
+    d.onclick=()=>gPick(i); L.appendChild(d);
   });
+  renderCards();
   $('slotBox').classList.toggle('pulse',st.pulse==='slot'&&gState==='ask');
   $('placePill').classList.toggle('pulse',st.pulse==='pill'&&gState==='ask');
+}
+function renderCards(){
+  const st=G[gi], box=$('gCards'); box.innerHTML=''; box.classList.remove('hidden');
+  const hd=document.createElement('div'); hd.className='ghd';
+  hd.textContent=st.kind==='cmd'?'🤔 Яку команду дамо агенту?':st.kind==='map'?'🤔 Куди прийде агент?':'🤔 Як думаєте?';
+  box.appendChild(hd);
+  const n=st.kind==='cmd'?st.cards.length:st.kind==='map'?st.choices.length:st.opts.length;
+  const good=okIndex(st);
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='gcard';
+    if(gState==='done'){ c.classList.add('lock', i===good?'right':(i===gPicked?'picked':'dim')); }
+    else if(gWrong.has(i)) c.classList.add('wrong','lock');
+    c.innerHTML=badge(LETTERS[i])+'<div class="gbody"></div>';
+    const body=c.querySelector('.gbody');
+    box.appendChild(c);
+    if(st.kind==='cmd'){
+      const hold=document.createElement('div'); hold.className='bhold'; body.appendChild(hold);
+      const el=makeStmt(st.cards[i].b(),false); hold.appendChild(el);
+      const {w,h}=shapeStmt(el,COL.agent); hold.style.width=w+'px'; hold.style.height=(h+ND)+'px';
+      if(st.cards[i].why){ const y=document.createElement('div'); y.className='why'; y.textContent='✖ '+st.cards[i].why; body.appendChild(y); }
+    }else{
+      const t=document.createElement('div'); t.className='gtxt';
+      t.textContent=st.kind==='map'?'Клітинка '+LETTERS[i]:st.opts[i]; body.appendChild(t);
+    }
+    if(gState==='ask'&&!gWrong.has(i)) c.onclick=()=>gPick(i);
+  }
+}
+function gPick(i){
+  const st=G[gi];
+  if(gBusy||gState!=='ask') return;
+  if(st.kind==='cmd'&&!st.cards[i].ok){ gWrong.add(i); sShake(); renderCards(); return; }
+  gPicked=i; gReveal();
 }
 function pandaRunsAway(){
   const start={x:6,y:7}, an=spawnAnimal(start);
@@ -1502,21 +1618,28 @@ function pandaRunsAway(){
 function gReveal(){
   const st=G[gi];
   gBusy=true; renderGuided();
-  const finish=()=>{ gBusy=false; gState='done'; renderGuided(); };
-  if(st.add){
-    const bl=st.add(); program.push(...bl); flashIds.clear(); bl.forEach(b=>flashIds.add(b.id)); renderProgram();
+  const finish=()=>{
+    gBusy=false; gState='done'; clearStepNums(); renderGuided();
+    if(gPicked!=null&&st.kind!=='cmd'){ if(gPicked===okIndex(st)) sWin(); }
+  };
+  if(st.kind==='cmd'){
+    const bl=lk([st.cards[okIndex(st)].b()]);
+    program.push(...bl); flashIds.clear(); bl.forEach(b=>flashIds.add(b.id)); renderProgram();
     gLater(()=>{ flashIds.clear(); renderProgram(); },900);
     const go=()=>playBlocks(bl,STEP_MS,finish);
-    if(st.chat) typeChat(go); else gLater(go,500);
+    if(st.chat) chatSay(go); else gLater(go,500);
+  }else if(st.add){
+    pendIds.clear(); flashIds.clear(); gBl.forEach(b=>flashIds.add(b.id)); renderProgram();
+    gLater(()=>{ flashIds.clear(); renderProgram(); },900);
+    gLater(()=>playBlocks(gBl,STEP_MS,finish),400);
   }else if(st.panda){
     built=true; releaseAnimals(); gLater(finish,1600);
   }else if(st.trap){
-    // та сама програма, але без одного блоку
     const variant=lk(lessonProgram()).filter(b=>st.trap==='slot'?b.type!=='slot':!(b.type==='pl'&&b.on));
     W.silent=true; resetWorld(); W.silent=false; hideMsg();
     program=variant; renderProgram();
     showMsg(st.trap==='slot'?'Прибрали блок: постав паркан у слот 1':'Прибрали блок: розмістити на ходу УВІМКН.','info');
-    gLater(()=>typeChat(()=>playBlocks(variant,320,()=>{ pandaRunsAway(); gLater(finish,1800); })),900);
+    gLater(()=>chatSay(()=>playBlocks(variant,320,()=>{ pandaRunsAway(); gLater(finish,1800); })),900);
   }
 }
 function showMemo(){
@@ -1534,7 +1657,7 @@ function showMemo(){
 }
 $('gMain').onclick=()=>{
   if(gBusy) return;
-  if(gState==='ask') gReveal();
+  if(gState==='ask'){ gPicked=null; gReveal(); }
   else if(gi<G.length-1) gGo(gi+1);
   else showMemo();
 };
